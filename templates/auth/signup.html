@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<section class="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 py-12">
+    <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-plus text-primary-600 text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Join SkillBridge Africa</h1>
+                <p class="text-gray-600">Start your journey to professional success</p>
+            </div>
+            
+            <!-- Form -->
+            <form method="POST" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                           placeholder="Enter your email address">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="password" name="password" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                           placeholder="Create a strong password">
+                    <p class="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                </div>
+                
+                <div>
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                           placeholder="Confirm your password">
+                </div>
+                
+                <div class="bg-primary-50 p-4 rounded-xl">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-primary-600 mt-1 mr-3"></i>
+                        <div class="text-sm text-primary-700">
+                            <p class="font-medium mb-1">What happens next?</p>
+                            <p>We'll send a verification code to your email. After verification, you can create your professional or client profile.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-primary-600 text-white py-3 px-4 rounded-xl hover:bg-primary-700 transition duration-300 font-semibold text-lg">
+                    Create Account
+                </button>
+                
+                <div class="text-center">
+                    <span class="text-gray-600">Already have an account? </span>
+                    <a href="{{ url_for('auth.login') }}" class="text-primary-600 hover:text-primary-700 font-medium">
+                        Sign in here
+                    </a>
+                </div>
+            </form>
+            
+            <!-- Features -->
+            <div class="mt-8 pt-8 border-t border-gray-200">
+                <h3 class="font-semibold text-gray-900 mb-4 text-center">Why join SkillBridge Africa?</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check text-green-600 mr-3"></i>
+                        Connect with verified professionals and clients
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check text-green-600 mr-3"></i>
+                        Build your professional reputation with reviews
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check text-green-600 mr-3"></i>
+                        Access opportunities across Africa
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check text-green-600 mr-3"></i>
+                        Secure messaging and payment systems
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

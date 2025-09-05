@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Status - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Payment Status</h1>
+        <p class="text-primary-100 mt-2">Track your payment progress</p>
+    </div>
+</section>
+
+<!-- Payment Status -->
+<section class="py-8">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <!-- Status Header -->
+            <div class="text-center mb-8">
+                {% if payment.status.value == 'SUCCESS' %}
+                    <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-green-600 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-green-800 mb-2">Payment Successful!</h2>
+                    <p class="text-green-600">Your plan has been activated</p>
+                {% elif payment.status.value == 'FAILED' %}
+                    <div class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-times text-red-600 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-red-800 mb-2">Payment Failed</h2>
+                    <p class="text-red-600">There was an issue processing your payment</p>
+                {% else %}
+                    <div class="bg-yellow-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-yellow-600 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-yellow-800 mb-2">Payment Pending</h2>
+                    <p class="text-yellow-600">Please complete the payment on your phone</p>
+                {% endif %}
+            </div>
+            
+            <!-- Payment Details -->
+            <div class="space-y-6">
+                <!-- Plan Information -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-gray-900 mb-4">Plan Details</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Plan:</span>
+                            <span class="font-medium">{{ payment.plan.name }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Amount:</span>
+                            <span class="font-medium">KES {{ "{:,.0f}".format(payment.amount_kes) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Duration:</span>
+                            <span class="font-medium">{{ payment.plan.duration_days }} days</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Profile:</span>
+                            <span class="font-medium">{{ payment.profile.title }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Information -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-gray-900 mb-4">Payment Information</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Status:</span>
+                            <span class="font-medium
+                                         {% if payment.status.value == 'SUCCESS' %}text-green-600
+                                         {% elif payment.status.value == 'FAILED' %}text-red-600
+                                         {% else %}text-yellow-600{% endif %}">
+                                {{ payment.status.value.title() }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Phone:</span>
+                            <span class="font-medium">{{ payment.mpesa_phone }}</span>
+                        </div>
+                        {% if payment.provider_ref %}
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Transaction ID:</span>
+                                <span class="font-medium">{{ payment.provider_ref }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Date:</span>
+                            <span class="font-medium">{{ payment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Instructions -->
+                {% if payment.status.value == 'PENDING' %}
+                    <div class="bg-blue-50 rounded-lg p-6">
+                        <h3 class="font-semibold text-blue-800 mb-4">
+                            <i class="fas fa-mobile-alt mr-2"></i>Complete Payment
+                        </h3>
+                        <div class="text-sm text-blue-700 space-y-2">
+                            <p>1. Check your phone ({{ payment.mpesa_phone }}) for an M-Pesa payment request</p>
+                            <p>2. Enter your M-Pesa PIN to complete the payment</p>
+                            <p>3. You'll receive a confirmation SMS from M-Pesa</p>
+                            <p>4. Your plan will be activated automatically</p>
+                        </div>
+                        
+                        <!-- Auto-refresh notice -->
+                        <div class="mt-4 pt-4 border-t border-blue-200">
+                            <p class="text-xs text-blue-600">
+                                <i class="fas fa-sync mr-1"></i>
+                                This page will refresh automatically to show updated status
+                            </p>
+                        </div>
+                    </div>
+                {% elif payment.status.value == 'FAILED' %}
+                    <div class="bg-red-50 rounded-lg p-6">
+                        <h3 class="font-semibold text-red-800 mb-4">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>What went wrong?
+                        </h3>
+                        <div class="text-sm text-red-700 space-y-2">
+                            <p>• Insufficient funds in your M-Pesa account</p>
+                            <p>• Incorrect M-Pesa PIN entered</p>
+                            <p>• Payment request expired (not completed in time)</p>
+                            <p>• Network connectivity issues</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="bg-green-50 rounded-lg p-6">
+                        <h3 class="font-semibold text-green-800 mb-4">
+                            <i class="fas fa-gift mr-2"></i>What's Next?
+                        </h3>
+                        <div class="text-sm text-green-700 space-y-2">
+                            <p>• Your profile now has premium features activated</p>
+                            <p>• You'll appear higher in search results</p>
+                            <p>• Enjoy unlimited messaging and enhanced visibility</p>
+                            <p>• Contact our support team if you need any assistance</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Actions -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                {% if payment.status.value == 'FAILED' %}
+                    <a href="{{ url_for('billing.plans') }}" 
+                       class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition text-center">
+                        <i class="fas fa-redo mr-2"></i>Try Again
+                    </a>
+                {% endif %}
+                
+                <a href="{{ url_for('billing.payment_history') }}" 
+                   class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition text-center">
+                    <i class="fas fa-history mr-2"></i>Payment History
+                </a>
+                
+                <a href="{{ url_for('public.dashboard') }}" 
+                   class="bg-accent-600 text-white px-6 py-3 rounded-lg hover:bg-accent-700 transition text-center">
+                    <i class="fas fa-home mr-2"></i>Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if payment.status.value == 'PENDING' %}
+<script>
+// Auto-refresh every 10 seconds for pending payments
+let refreshCount = 0;
+const maxRefreshes = 30; // Stop after 5 minutes
+
+function checkPaymentStatus() {
+    if (refreshCount >= maxRefreshes) {
+        return;
+    }
+    
+    fetch(`{{ url_for('billing.check_payment_status', payment_id=payment.id) }}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status !== 'PENDING') {
+                location.reload();
+            } else {
+                refreshCount++;
+                if (refreshCount < maxRefreshes) {
+                    setTimeout(checkPaymentStatus, 10000);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking payment status:', error);
+            refreshCount++;
+            if (refreshCount < maxRefreshes) {
+                setTimeout(checkPaymentStatus, 10000);
+            }
+        });
+}
+
+// Start checking after 10 seconds
+setTimeout(checkPaymentStatus, 10000);
+</script>
+{% endif %}
+{% endblock %}

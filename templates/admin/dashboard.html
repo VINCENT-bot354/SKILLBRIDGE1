@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-red-600 to-red-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+                <p class="text-red-100 mt-2">Manage SkillBridge Africa platform</p>
+            </div>
+            <a href="{{ url_for('admin.logout') }}" 
+               class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400 transition">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Cards -->
+<section class="py-8 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Users -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-2xl font-bold text-gray-900">{{ stats.total_users }}</h3>
+                        <p class="text-gray-600">Total Users</p>
+                        <p class="text-sm text-green-600">{{ stats.verified_users }} verified</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Total Profiles -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-id-card text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-2xl font-bold text-gray-900">{{ stats.total_profiles }}</h3>
+                        <p class="text-gray-600">Total Profiles</p>
+                        <p class="text-sm text-blue-600">{{ stats.professional_profiles }} professionals, {{ stats.client_profiles }} clients</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-envelope text-purple-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-2xl font-bold text-gray-900">{{ stats.total_messages }}</h3>
+                        <p class="text-gray-600">Total Messages</p>
+                        <p class="text-sm text-purple-600">{{ stats.total_reviews }} reviews</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payments -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="bg-yellow-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-credit-card text-yellow-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-2xl font-bold text-gray-900">{{ stats.successful_payments }}</h3>
+                        <p class="text-gray-600">Successful Payments</p>
+                        <p class="text-sm text-orange-600">{{ stats.pending_payments }} pending</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Quick Actions -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+                    <div class="space-y-3">
+                        <a href="{{ url_for('admin.users') }}" 
+                           class="block w-full bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-users mr-2"></i>Manage Users
+                        </a>
+                        <a href="{{ url_for('admin.settings') }}" 
+                           class="block w-full bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-cog mr-2"></i>Settings
+                        </a>
+                        <a href="{{ url_for('admin.homepage_photos') }}" 
+                           class="block w-full bg-purple-600 text-white text-center py-3 rounded-lg hover:bg-purple-700 transition">
+                            <i class="fas fa-images mr-2"></i>Homepage Photos
+                        </a>
+                        <a href="{{ url_for('admin.reviews') }}" 
+                           class="block w-full bg-yellow-600 text-white text-center py-3 rounded-lg hover:bg-yellow-700 transition">
+                            <i class="fas fa-star mr-2"></i>Moderate Reviews
+                        </a>
+                        <a href="{{ url_for('admin.payments') }}" 
+                           class="block w-full bg-orange-600 text-white text-center py-3 rounded-lg hover:bg-orange-700 transition">
+                            <i class="fas fa-money-bill mr-2"></i>View Payments
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- System Status -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">System Status</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700">Global Override</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                                Active
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700">Photo Uploads</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                                Enabled
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700">Video Uploads</span>
+                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+                                Disabled
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Recent Users -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">Recent Users</h3>
+                        <a href="{{ url_for('admin.users') }}" class="text-blue-600 hover:text-blue-700 text-sm">
+                            View All
+                        </a>
+                    </div>
+                    
+                    {% if recent_users %}
+                        <div class="space-y-3">
+                            {% for user in recent_users %}
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ user.email }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            Joined {{ user.created_at.strftime('%B %d, %Y') }}
+                                            {% if user.email_verified %}
+                                                <span class="text-green-600">• Verified</span>
+                                            {% else %}
+                                                <span class="text-yellow-600">• Unverified</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button onclick="toggleUserActive({{ user.id }})" 
+                                                class="text-sm {% if user.is_active %}text-red-600 hover:text-red-700{% else %}text-green-600 hover:text-green-700{% endif %}">
+                                            {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">No recent users</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Recent Profiles -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Recent Profiles</h3>
+                    
+                    {% if recent_profiles %}
+                        <div class="space-y-3">
+                            {% for profile in recent_profiles %}
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                    <div class="flex items-center space-x-3">
+                                        {% if profile.avatar_url %}
+                                            <img src="{{ profile.avatar_url }}" alt="{{ profile.title }}" 
+                                                 class="w-10 h-10 rounded-full object-cover">
+                                        {% else %}
+                                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-user text-gray-400"></i>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div>
+                                            <p class="font-medium text-gray-900">{{ profile.title }}</p>
+                                            <p class="text-sm text-gray-500">
+                                                {{ profile.type.value.title() }} • {{ profile.location_county }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex space-x-2">
+                                        <button onclick="toggleProfileFeatured({{ profile.id }})" 
+                                                class="text-sm {% if profile.is_featured %}text-yellow-600{% else %}text-gray-600{% endif %} hover:text-yellow-700">
+                                            {% if profile.is_featured %}Unfeature{% else %}Feature{% endif %}
+                                        </button>
+                                        <button onclick="toggleProfileNew({{ profile.id }})" 
+                                                class="text-sm {% if profile.is_new_user_flag %}text-blue-600{% else %}text-gray-600{% endif %} hover:text-blue-700">
+                                            {% if profile.is_new_user_flag %}Remove New{% else %}Mark New{% endif %}
+                                        </button>
+                                        <a href="{{ url_for('public.profile_detail', profile_id=profile.id) }}" 
+                                           class="text-sm text-green-600 hover:text-green-700">
+                                            View
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">No recent profiles</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Recent Payments -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">Recent Payments</h3>
+                        <a href="{{ url_for('admin.payments') }}" class="text-blue-600 hover:text-blue-700 text-sm">
+                            View All
+                        </a>
+                    </div>
+                    
+                    {% if recent_payments %}
+                        <div class="space-y-3">
+                            {% for payment in recent_payments %}
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ payment.plan.name }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            KES {{ "{:,.0f}".format(payment.amount_kes) }} • {{ payment.created_at.strftime('%B %d') }}
+                                        </p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full
+                                               {% if payment.status.value == 'SUCCESS' %}bg-green-100 text-green-800
+                                               {% elif payment.status.value == 'FAILED' %}bg-red-100 text-red-800
+                                               {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {{ payment.status.value.title() }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">No recent payments</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function toggleUserActive(userId) {
+    if (confirm('Are you sure you want to change this user\'s status?')) {
+        window.location.href = `/admin/user/${userId}/toggle-active`;
+    }
+}
+
+function toggleProfileFeatured(profileId) {
+    window.location.href = `/admin/profile/${profileId}/toggle-featured`;
+}
+
+function toggleProfileNew(profileId) {
+    window.location.href = `/admin/profile/${profileId}/toggle-new`;
+}
+</script>
+{% endblock %}

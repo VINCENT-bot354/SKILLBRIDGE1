@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<section class="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-12">
+    <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-red-600 text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Admin Access</h1>
+                <p class="text-gray-600">Enter admin password to continue</p>
+            </div>
+            
+            <!-- Form -->
+            <form method="POST" class="space-y-6">
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Admin Password</label>
+                    <input type="password" id="password" name="password" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                           placeholder="Enter admin password">
+                </div>
+                
+                <div class="bg-yellow-50 p-4 rounded-xl">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"></i>
+                        <div class="text-sm text-yellow-700">
+                            <p class="font-medium mb-1">Security Notice</p>
+                            <p>This area is restricted to authorized administrators only. All access is logged and monitored.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-red-600 text-white py-3 px-4 rounded-xl hover:bg-red-700 transition duration-300 font-semibold text-lg">
+                    <i class="fas fa-unlock mr-2"></i>Access Admin Panel
+                </button>
+                
+                <div class="text-center">
+                    <a href="{{ url_for('public.index') }}" class="text-gray-600 hover:text-gray-800 text-sm">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Homepage
+                    </a>
+                </div>
+            </form>
+            
+            <!-- Admin Features -->
+            <div class="mt-8 pt-8 border-t border-gray-200">
+                <h3 class="font-semibold text-gray-900 mb-4 text-center">Admin Features</h3>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                        <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-users text-blue-600"></i>
+                        </div>
+                        <p class="text-sm text-gray-600">User Management</p>
+                    </div>
+                    <div>
+                        <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-cog text-green-600"></i>
+                        </div>
+                        <p class="text-sm text-gray-600">System Settings</p>
+                    </div>
+                    <div>
+                        <div class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-chart-bar text-purple-600"></i>
+                        </div>
+                        <p class="text-sm text-gray-600">Analytics</p>
+                    </div>
+                    <div>
+                        <div class="bg-yellow-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-shield-alt text-yellow-600"></i>
+                        </div>
+                        <p class="text-sm text-gray-600">Content Moderation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

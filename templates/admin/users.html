@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Admin - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-red-600 to-red-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">User Management</h1>
+                <p class="text-red-100 mt-2">Manage users and their profiles</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" 
+               class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Search and Filters -->
+<section class="py-6 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form method="GET" class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text" name="search" value="{{ search }}" 
+                           placeholder="Search by email or user details..."
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+                <button type="submit" 
+                        class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+                    <i class="fas fa-search mr-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Users List -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if users.items %}
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <!-- Table Header -->
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Users ({{ users.total }} total)
+                    </h2>
+                </div>
+                
+                <!-- Users Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    User
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Profiles
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Joined
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for user in users.items %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ user.email }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                Role: {{ user.role.value.title() }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="space-y-1">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                                       {% if user.is_active %}bg-green-100 text-green-800
+                                                       {% else %}bg-red-100 text-red-800{% endif %}">
+                                                {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                            <br>
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                                       {% if user.email_verified %}bg-blue-100 text-blue-800
+                                                       {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                                {% if user.email_verified %}Verified{% else %}Unverified{% endif %}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ user.profiles.count() }} profile{{ 's' if user.profiles.count() != 1 else '' }}
+                                        {% if user.profiles.count() > 0 %}
+                                            <div class="text-xs text-gray-500">
+                                                {% for profile in user.profiles.limit(3) %}
+                                                    {{ profile.type.value[:4] }}{% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ user.created_at.strftime('%b %d, %Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <!-- Toggle Active -->
+                                            <a href="{{ url_for('admin.toggle_user_active', user_id=user.id) }}" 
+                                               onclick="return confirm('Toggle user active status?')"
+                                               class="{% if user.is_active %}text-red-600 hover:text-red-900{% else %}text-green-600 hover:text-green-900{% endif %}">
+                                                {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+                                            </a>
+                                            
+                                            <!-- Message User -->
+                                            <button onclick="openMessageModal({{ user.id }}, '{{ user.email }}')" 
+                                                    class="text-blue-600 hover:text-blue-900">
+                                                Message
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            {% if users.pages > 1 %}
+                <div class="mt-8 flex justify-center">
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        {% if users.has_prev %}
+                            <a href="{{ url_for('admin.users', page=users.prev_num, search=search) }}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        {% endif %}
+                        
+                        {% for page_num in users.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != users.page %}
+                                    <a href="{{ url_for('admin.users', page=page_num, search=search) }}" 
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        {{ page_num }}
+                                    </a>
+                                {% else %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-red-50 text-sm font-medium text-red-600">
+                                        {{ page_num }}
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                    ...
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if users.has_next %}
+                            <a href="{{ url_for('admin.users', page=users.next_num, search=search) }}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16">
+                <div class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-users text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">No users found</h3>
+                <p class="text-gray-600">
+                    {% if search %}
+                        No users match your search criteria.
+                    {% else %}
+                        No users have signed up yet.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Message Modal -->
+<div id="messageModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+        <div class="text-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Send Message</h3>
+            <p class="text-gray-600">Send a message to <span id="modal_user_email"></span></p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('admin.message_user', user_id=0) }}" id="messageForm">
+            <div class="mb-6">
+                <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+                    Message Content
+                </label>
+                <textarea id="content" name="content" required rows="4"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                          placeholder="Enter your message..."></textarea>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button type="button" onclick="closeMessageModal()" 
+                        class="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-400 transition">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition">
+                    Send Message
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openMessageModal(userId, userEmail) {
+    document.getElementById('modal_user_email').textContent = userEmail;
+    document.getElementById('messageForm').action = `/admin/user/${userId}/message`;
+    document.getElementById('messageModal').classList.remove('hidden');
+}
+
+function closeMessageModal() {
+    document.getElementById('messageModal').classList.add('hidden');
+    document.getElementById('content').value = '';
+}
+
+// Close modal on outside click
+document.getElementById('messageModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeMessageModal();
+    }
+});
+</script>
+{% endblock %}

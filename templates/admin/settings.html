@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Settings - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-red-600 to-red-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Admin Settings</h1>
+                <p class="text-red-100 mt-2">Configure platform settings and features</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" 
+               class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Settings Form -->
+<section class="py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            <!-- Media Settings -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Media Settings</h2>
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium text-gray-900">Photo Uploads</h3>
+                            <p class="text-sm text-gray-600">Allow users to upload photos to their profiles</p>
+                        </div>
+                        <input type="checkbox" name="media_photos_enabled" value="1" 
+                               {% if settings.media_photos_enabled %}checked{% endif %}
+                               class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium text-gray-900">Video Uploads</h3>
+                            <p class="text-sm text-gray-600">Allow users to upload videos (coming soon)</p>
+                        </div>
+                        <input type="checkbox" name="media_videos_enabled" value="1" 
+                               {% if settings.media_videos_enabled %}checked{% endif %}
+                               class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium text-gray-900">Global Override</h3>
+                            <p class="text-sm text-gray-600">Lift all payment restrictions and make platform free</p>
+                        </div>
+                        <input type="checkbox" name="global_override_enabled" value="1" 
+                               {% if settings.global_override_enabled %}checked{% endif %}
+                               class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logo Settings -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Logo & Branding</h2>
+                <div class="space-y-6">
+                    <!-- Current Logo -->
+                    {% if settings.logo_url %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Logo</label>
+                            <img src="{{ settings.logo_url }}" alt="Current Logo" 
+                                 class="w-20 h-20 object-cover rounded-lg border-2 border-gray-200">
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Upload New Logo -->
+                    <div>
+                        <label for="logo" class="block text-sm font-medium text-gray-700 mb-2">
+                            {% if settings.logo_url %}Update Logo{% else %}Upload Logo{% endif %}
+                        </label>
+                        <input type="file" id="logo" name="logo" accept="image/*"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                        <p class="text-xs text-gray-500 mt-1">Recommended: Square image, PNG or JPG format</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- M-Pesa Settings -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">M-Pesa Payment Settings</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="mpesa_shortcode" class="block text-sm font-medium text-gray-700 mb-2">
+                            Business Shortcode
+                        </label>
+                        <input type="text" id="mpesa_shortcode" name="mpesa_shortcode" 
+                               value="{{ settings.mpesa_shortcode or '' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                               placeholder="e.g., 174379">
+                    </div>
+                    
+                    <div>
+                        <label for="mpesa_company_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            Company Name
+                        </label>
+                        <input type="text" id="mpesa_company_name" name="mpesa_company_name" 
+                               value="{{ settings.mpesa_company_name or 'SkillBridge Africa' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label for="mpesa_passkey" class="block text-sm font-medium text-gray-700 mb-2">
+                            Passkey
+                        </label>
+                        <textarea id="mpesa_passkey" name="mpesa_passkey" rows="3"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                  placeholder="Enter M-Pesa passkey...">{{ settings.mpesa_passkey or '' }}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label for="mpesa_env" class="block text-sm font-medium text-gray-700 mb-2">
+                            Environment
+                        </label>
+                        <select id="mpesa_env" name="mpesa_env"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                            <option value="SANDBOX" {% if settings.mpesa_env.value == 'SANDBOX' %}selected{% endif %}>
+                                Sandbox (Testing)
+                            </option>
+                            <option value="LIVE" {% if settings.mpesa_env.value == 'LIVE' %}selected{% endif %}>
+                                Live (Production)
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="callback_base_url" class="block text-sm font-medium text-gray-700 mb-2">
+                            Callback Base URL
+                        </label>
+                        <input type="url" id="callback_base_url" name="callback_base_url" 
+                               value="{{ settings.callback_base_url or '' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                               placeholder="https://yourapp.com">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Settings -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Email Settings</h2>
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                        <div class="text-sm text-blue-700">
+                            <p class="font-medium mb-1">Environment Variables Priority</p>
+                            <p>If EMAIL and APPPASSWORD environment variables are set, they will be used instead of these settings.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="email_server" class="block text-sm font-medium text-gray-700 mb-2">
+                            SMTP Server
+                        </label>
+                        <input type="text" id="email_server" name="email_server" 
+                               value="{{ settings.email_server or 'smtp.gmail.com' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    
+                    <div>
+                        <label for="email_port" class="block text-sm font-medium text-gray-700 mb-2">
+                            SMTP Port
+                        </label>
+                        <input type="number" id="email_port" name="email_port" 
+                               value="{{ settings.email_port or 587 }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    
+                    <div>
+                        <label for="email_username" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Username
+                        </label>
+                        <input type="email" id="email_username" name="email_username" 
+                               value="{{ settings.email_username or '' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                               placeholder="your-email@gmail.com">
+                    </div>
+                    
+                    <div>
+                        <label for="email_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Password/App Password
+                        </label>
+                        <input type="password" id="email_password" name="email_password" 
+                               value="{{ settings.email_password or '' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                               placeholder="Your app password">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Security -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Admin Security</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label for="admin_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Change Admin Password
+                        </label>
+                        <input type="password" id="admin_password" name="admin_password"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                               placeholder="Enter new admin password (leave blank to keep current)">
+                        <p class="text-xs text-gray-500 mt-1">
+                            Current default password: SKILLBRIDGE (change for security)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-between items-center">
+                <a href="{{ url_for('admin.dashboard') }}" 
+                   class="text-gray-600 hover:text-gray-800 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                </a>
+                <button type="submit" 
+                        class="bg-red-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-red-700 transition">
+                    <i class="fas fa-save mr-2"></i>Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

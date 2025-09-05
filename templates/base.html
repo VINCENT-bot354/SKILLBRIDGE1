@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillBridge Africa{% endblock %}</title>
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        },
+                        accent: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f'
+                        },
+                        earth: {
+                            50: '#fefaf7',
+                            100: '#fdf2e8',
+                            200: '#fbe5d1',
+                            300: '#f8d4b0',
+                            400: '#f4bf85',
+                            500: '#ef9f4f',
+                            600: '#e87d1a',
+                            700: '#c4630f',
+                            800: '#9d4f10',
+                            900: '#7f4110'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Loader -->
+    {% include 'components/loader.html' %}
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b-4 border-primary-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <!-- Logo and Brand -->
+                    <a href="{{ url_for('public.index') }}" class="flex items-center space-x-3">
+                        {% if settings and settings.logo_url %}
+                            <img src="{{ settings.logo_url }}" alt="Logo" class="h-10 w-10 object-cover rounded-lg">
+                        {% else %}
+                            <div class="h-10 w-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-bridge text-white text-lg"></i>
+                            </div>
+                        {% endif %}
+                        <span class="text-xl font-bold text-primary-800">SkillBridge Africa</span>
+                    </a>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{{ url_for('public.index') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">Home</a>
+                    <a href="{{ url_for('public.about') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">About</a>
+                    <a href="{{ url_for('public.browse') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">Browse</a>
+                    
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('public.dashboard') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">Dashboard</a>
+                        <a href="{{ url_for('profiles.my_profiles') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">My Profiles</a>
+                        <a href="{{ url_for('messaging.inbox') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">
+                            Messages
+                            {% set unread_count = current_user.received_messages.filter_by(is_read=False).count() %}
+                            {% if unread_count > 0 %}
+                                <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-1">{{ unread_count }}</span>
+                            {% endif %}
+                        </a>
+                        
+                        <!-- Admin Link (only if admin session exists) -->
+                        {% if session.get('admin_token') %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition">Admin</a>
+                        {% endif %}
+                        
+                        <div class="relative">
+                            <button onclick="toggleDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">
+                                <i class="fas fa-user"></i>
+                                <span>{{ current_user.email.split('@')[0] }}</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                                <a href="{{ url_for('profiles.my_profiles') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Profiles</a>
+                                <a href="{{ url_for('billing.plans') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Billing</a>
+                                <hr class="my-1">
+                                <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">Login</a>
+                        <a href="{{ url_for('auth.signup') }}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">Get Started</a>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-primary-600">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{{ url_for('public.index') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Home</a>
+                <a href="{{ url_for('public.about') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">About</a>
+                <a href="{{ url_for('public.browse') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Browse</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('public.dashboard') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Dashboard</a>
+                    <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Login</a>
+                    <a href="{{ url_for('auth.signup') }}" class="block px-3 py-2 bg-primary-600 text-white rounded-md">Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} bg-{% if category == 'error' %}red{% elif category == 'success' %}green{% elif category == 'warning' %}yellow{% else %}blue{% endif %}-100 border border-{% if category == 'error' %}red{% elif category == 'success' %}green{% elif category == 'warning' %}yellow{% else %}blue{% endif %}-400 text-{% if category == 'error' %}red{% elif category == 'success' %}green{% elif category == 'warning' %}yellow{% else %}blue{% endif %}-700 px-4 py-3 rounded mb-4">
+                        <div class="flex items-center justify-between">
+                            <span>{{ message }}</span>
+                            <button onclick="this.parentElement.parentElement.remove()" class="text-{% if category == 'error' %}red{% elif category == 'success' %}green{% elif category == 'warning' %}yellow{% else %}blue{% endif %}-700 hover:text-{% if category == 'error' %}red{% elif category == 'success' %}green{% elif category == 'warning' %}yellow{% else %}blue{% endif %}-900">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary-800 text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        {% if settings and settings.logo_url %}
+                            <img src="{{ settings.logo_url }}" alt="Logo" class="h-8 w-8 object-cover rounded">
+                        {% else %}
+                            <div class="h-8 w-8 bg-white rounded flex items-center justify-center">
+                                <i class="fas fa-bridge text-primary-600"></i>
+                            </div>
+                        {% endif %}
+                        <span class="text-lg font-bold">SkillBridge Africa</span>
+                    </div>
+                    <p class="text-primary-200 mb-4">Connecting skilled professionals with clients across Africa. Building bridges to opportunities.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-primary-200 hover:text-white transition"><i class="fab fa-facebook text-xl"></i></a>
+                        <a href="#" class="text-primary-200 hover:text-white transition"><i class="fab fa-twitter text-xl"></i></a>
+                        <a href="#" class="text-primary-200 hover:text-white transition"><i class="fab fa-linkedin text-xl"></i></a>
+                        <a href="#" class="text-primary-200 hover:text-white transition"><i class="fab fa-instagram text-xl"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-primary-200">
+                        <li><a href="{{ url_for('public.about') }}" class="hover:text-white transition">About Us</a></li>
+                        <li><a href="{{ url_for('public.browse') }}" class="hover:text-white transition">Browse Profiles</a></li>
+                        <li><a href="{{ url_for('auth.signup') }}" class="hover:text-white transition">Get Started</a></li>
+                        <li><a href="#" class="hover:text-white transition">Help Center</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Categories</h3>
+                    <ul class="space-y-2 text-primary-200">
+                        <li><a href="{{ url_for('public.browse', category='Plumbing') }}" class="hover:text-white transition">Plumbing</a></li>
+                        <li><a href="{{ url_for('public.browse', category='Electrical') }}" class="hover:text-white transition">Electrical</a></li>
+                        <li><a href="{{ url_for('public.browse', category='Education') }}" class="hover:text-white transition">Education</a></li>
+                        <li><a href="{{ url_for('public.browse', category='Photography') }}" class="hover:text-white transition">Photography</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-primary-700 mt-8 pt-8 text-center text-primary-200">
+                <p>&copy; {{ moment().format('YYYY') }} SkillBridge Africa. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/star_rating.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/profanity_filter.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

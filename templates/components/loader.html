@@ -1,0 +1,72 @@
+<!-- Animated Loader Component -->
+<div id="pageLoader" class="fixed inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center">
+    <div class="text-center">
+        <!-- Animated Gears -->
+        <div class="relative inline-block mb-6">
+            <!-- Main Gear -->
+            <div class="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+            
+            <!-- Secondary Gear -->
+            <div class="absolute -top-2 -right-2 w-8 h-8 border-2 border-accent-600 border-t-transparent rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 0.75s;"></div>
+        </div>
+        
+        <!-- Loading Text -->
+        <div class="text-primary-600 font-semibold text-lg mb-2">Loading...</div>
+        <div class="text-gray-500 text-sm">Please wait while we prepare your content</div>
+        
+        <!-- Progress Dots -->
+        <div class="flex justify-center space-x-1 mt-4">
+            <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0ms;"></div>
+            <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 150ms;"></div>
+            <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 300ms;"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes gear-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-gear {
+    animation: gear-rotate 2s linear infinite;
+}
+
+.animate-gear-reverse {
+    animation: gear-rotate 1.5s linear infinite reverse;
+}
+</style>
+
+<script>
+// Hide loader when page is fully loaded
+window.addEventListener('load', function() {
+    const loader = document.getElementById('pageLoader');
+    if (loader) {
+        loader.style.opacity = '0';
+        loader.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500);
+    }
+});
+
+// Show loader during navigation (HTMX compatibility)
+document.addEventListener('htmx:beforeRequest', function() {
+    const loader = document.getElementById('pageLoader');
+    if (loader) {
+        loader.style.display = 'flex';
+        loader.style.opacity = '1';
+    }
+});
+
+document.addEventListener('htmx:afterRequest', function() {
+    const loader = document.getElementById('pageLoader');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 300);
+    }
+});
+</script>

@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Write Review for {{ user.email.split('@')[0] }} - SkillBridge Africa{% endblock %}
+
+{% block extra_head %}
+<style>
+.star-rating {
+    display: flex;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.star {
+    font-size: 1.5rem;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star.active {
+    color: #f59e0b;
+}
+
+.star:hover {
+    color: #f59e0b;
+}
+
+.profanity-highlight {
+    background-color: #fee2e2;
+    color: #dc2626;
+    text-decoration: underline;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('public.profile_detail', profile_id=profile.id) }}" 
+               class="text-primary-200 hover:text-white transition">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold">Write Review</h1>
+                <p class="text-primary-100 mt-2">Share your experience working with {{ user.email.split('@')[0] }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Review Form -->
+<section class="py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Profile Summary -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div class="flex items-center space-x-4">
+                {% if profile.avatar_url %}
+                    <img src="{{ profile.avatar_url }}" alt="{{ profile.title }}" 
+                         class="w-16 h-16 rounded-full object-cover">
+                {% else %}
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-gray-400 text-xl"></i>
+                    </div>
+                {% endif %}
+                
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900">{{ profile.title }}</h3>
+                    <p class="text-gray-600">{{ profile.type.value.title() }}</p>
+                    <p class="text-gray-500 text-sm">
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+                        {{ profile.location_town }}, {{ profile.location_county }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Form -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Rate Your Experience</h2>
+            
+            <form method="POST" class="space-y-8">
+                <!-- Rating Categories -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Professionalism -->
+                    <div class="text-center">
+                        <h3 class="font-semibold text-gray-900 mb-3">Professionalism</h3>
+                        <p class="text-sm text-gray-600 mb-4">How professional and courteous were they?</p>
+                        <div class="star-rating" data-rating="professionalism_rating">
+                            <span class="star" data-value="1">⭐</span>
+                            <span class="star" data-value="2">⭐</span>
+                            <span class="star" data-value="3">⭐</span>
+                            <span class="star" data-value="4">⭐</span>
+                            <span class="star" data-value="5">⭐</span>
+                        </div>
+                        <input type="hidden" name="professionalism_rating" id="professionalism_rating" required>
+                        <div class="rating-text text-sm text-gray-500 mt-2"></div>
+                    </div>
+                    
+                    <!-- Skill Level -->
+                    <div class="text-center">
+                        <h3 class="font-semibold text-gray-900 mb-3">Skill Level</h3>
+                        <p class="text-sm text-gray-600 mb-4">How skilled and competent were they?</p>
+                        <div class="star-rating" data-rating="skill_rating">
+                            <span class="star" data-value="1">⭐</span>
+                            <span class="star" data-value="2">⭐</span>
+                            <span class="star" data-value="3">⭐</span>
+                            <span class="star" data-value="4">⭐</span>
+                            <span class="star" data-value="5">⭐</span>
+                        </div>
+                        <input type="hidden" name="skill_rating" id="skill_rating" required>
+                        <div class="rating-text text-sm text-gray-500 mt-2"></div>
+                    </div>
+                    
+                    <!-- Ease of Work -->
+                    <div class="text-center">
+                        <h3 class="font-semibold text-gray-900 mb-3">Ease of Work</h3>
+                        <p class="text-sm text-gray-600 mb-4">How easy were they to work with?</p>
+                        <div class="star-rating" data-rating="ease_of_work_rating">
+                            <span class="star" data-value="1">⭐</span>
+                            <span class="star" data-value="2">⭐</span>
+                            <span class="star" data-value="3">⭐</span>
+                            <span class="star" data-value="4">⭐</span>
+                            <span class="star" data-value="5">⭐</span>
+                        </div>
+                        <input type="hidden" name="ease_of_work_rating" id="ease_of_work_rating" required>
+                        <div class="rating-text text-sm text-gray-500 mt-2"></div>
+                    </div>
+                </div>
+                
+                <!-- Profanity Warning -->
+                <div id="profanity-warning" class="hidden bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-red-600 mt-1 mr-3"></i>
+                        <div class="text-sm text-red-700">
+                            <p class="font-medium mb-1">Inappropriate language detected</p>
+                            <p id="profanity-message">Please use appropriate language in your review.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Written Review -->
+                <div>
+                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+                        Write Your Review
+                    </label>
+                    <textarea id="content" name="content" required rows="6" maxlength="1000"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                              placeholder="Describe your experience working with {{ user.email.split('@')[0] }}. What went well? What could be improved?"
+                              oninput="checkProfanity(this.value)"></textarea>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="text-xs text-gray-500">Be honest and constructive in your feedback</p>
+                        <span id="char-count" class="text-xs text-gray-500">0 / 1000</span>
+                    </div>
+                </div>
+                
+                <!-- Guidelines -->
+                <div class="bg-blue-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-blue-800 mb-3">
+                        <i class="fas fa-info-circle mr-2"></i>Review Guidelines
+                    </h3>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• Be honest and fair in your assessment</li>
+                        <li>• Focus on the work quality and professional interaction</li>
+                        <li>• Avoid personal attacks or inappropriate language</li>
+                        <li>• Provide constructive feedback that helps others</li>
+                        <li>• Remember that reviews are public and permanent</li>
+                    </ul>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="flex justify-between items-center">
+                    <a href="{{ url_for('public.profile_detail', profile_id=profile.id) }}" 
+                       class="text-gray-600 hover:text-gray-800 font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Profile
+                    </a>
+                    <button type="submit" id="submit-button"
+                            class="bg-primary-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-star mr-2"></i>Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script src="{{ url_for('static', filename='js/star_rating.js') }}"></script>
+<script src="{{ url_for('static', filename='js/profanity_filter.js') }}"></script>
+<script>
+// Character counter
+const contentTextarea = document.getElementById('content');
+const charCount = document.getElementById('char-count');
+
+contentTextarea.addEventListener('input', function() {
+    const count = this.value.length;
+    charCount.textContent = `${count} / 1000`;
+    
+    if (count > 900) {
+        charCount.classList.add('text-red-500');
+    } else {
+        charCount.classList.remove('text-red-500');
+    }
+});
+
+// Initialize star ratings
+document.addEventListener('DOMContentLoaded', function() {
+    initializeStarRatings();
+});
+</script>
+{% endblock %}

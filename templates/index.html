@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                    Bridge the Gap to 
+                    <span class="text-accent-400">Professional Success</span>
+                </h1>
+                <p class="text-xl text-primary-100 mb-8 leading-relaxed">
+                    Connect skilled professionals with clients across Africa. Whether you're seeking expert services or offering your skills, SkillBridge Africa is your gateway to opportunities.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{{ url_for('public.browse', type='PROFESSIONAL') }}" 
+                       class="bg-accent-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-accent-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-center">
+                        <i class="fas fa-search mr-2"></i>
+                        Find Professionals
+                    </a>
+                    <a href="{{ url_for('public.browse', type='CLIENT') }}" 
+                       class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-primary-700 transition-all duration-300 text-center">
+                        <i class="fas fa-handshake mr-2"></i>
+                        Find Clients
+                    </a>
+                </div>
+                
+                {% if not current_user.is_authenticated %}
+                <p class="text-primary-200 mt-6">
+                    New to SkillBridge? 
+                    <a href="{{ url_for('auth.signup') }}" class="text-accent-400 hover:text-accent-300 font-semibold">
+                        Join thousands of professionals today!
+                    </a>
+                </p>
+                {% endif %}
+            </div>
+            
+            <div class="lg:ml-8">
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
+                    <h3 class="text-2xl font-bold mb-6 text-center">Success Stories</h3>
+                    <div class="space-y-4">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                            <p class="text-primary-100 italic">"SkillBridge connected me with amazing clients. My business has grown 300%!"</p>
+                            <p class="text-accent-300 font-semibold mt-2">- Professional Photographer</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                            <p class="text-primary-100 italic">"Found the perfect electrician for our project. Fast, reliable, professional!"</p>
+                            <p class="text-accent-300 font-semibold mt-2">- Construction Company</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How SkillBridge Works</h2>
+            <p class="text-xl text-gray-600">Three simple steps to success</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center group">
+                <div class="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-200 transition-colors duration-300">
+                    <i class="fas fa-user-plus text-primary-600 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">1. Create Your Profile</h3>
+                <p class="text-gray-600 leading-relaxed">Sign up and create your professional or client profile. Showcase your skills, experience, and what you're looking for.</p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="bg-accent-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-accent-200 transition-colors duration-300">
+                    <i class="fas fa-search text-accent-600 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">2. Discover & Connect</h3>
+                <p class="text-gray-600 leading-relaxed">Browse through verified profiles, read reviews, and connect with the right professionals or clients for your needs.</p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="bg-earth-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-earth-200 transition-colors duration-300">
+                    <i class="fas fa-handshake text-earth-600 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">3. Collaborate & Grow</h3>
+                <p class="text-gray-600 leading-relaxed">Work together, build lasting relationships, and grow your business or find the perfect services for your projects.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Showcase -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Popular Categories</h2>
+            <p class="text-xl text-gray-600">Explore skilled professionals across various industries</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {% set categories = [
+                ('Plumbing', 'fas fa-wrench', 'primary'),
+                ('Electrical', 'fas fa-bolt', 'accent'),
+                ('Masonry', 'fas fa-hammer', 'earth'),
+                ('Education', 'fas fa-graduation-cap', 'primary'),
+                ('Photography', 'fas fa-camera', 'accent'),
+                ('Catering', 'fas fa-utensils', 'earth')
+            ] %}
+            
+            {% for category, icon, color in categories %}
+            <a href="{{ url_for('public.browse', category=category) }}" 
+               class="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">
+                <div class="bg-{{ color }}-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-{{ color }}-200 transition-colors">
+                    <i class="{{ icon }} text-{{ color }}-600 text-2xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-900">{{ category }}</h3>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="{{ url_for('public.browse') }}" class="text-primary-600 hover:text-primary-700 font-semibold">
+                View All Categories <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Professionals -->
+{% if featured_profiles %}
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">New & Featured Professionals</h2>
+            <p class="text-xl text-gray-600">Discover talented professionals who recently joined our platform</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for profile in featured_profiles[:8] %}
+                {% include 'components/profile_card.html' %}
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="{{ url_for('public.browse') }}" 
+               class="bg-primary-600 text-white px-8 py-3 rounded-lg hover:bg-primary-700 transition font-semibold">
+                View All Profiles
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Homepage Photos Gallery -->
+{% if homepage_photos %}
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Work in Action</h2>
+            <p class="text-xl text-gray-600">See the quality craftsmanship of our professionals</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for photo in homepage_photos %}
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <img src="{{ photo.url }}" alt="{{ photo.description or 'Professional work' }}" 
+                     class="w-full h-64 object-cover">
+                <div class="p-6">
+                    {% if photo.category %}
+                        <span class="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
+                            {{ photo.category }}
+                        </span>
+                    {% endif %}
+                    {% if photo.description %}
+                        <p class="text-gray-600 mt-3">{{ photo.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Updates -->
+{% if latest_updates %}
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Latest Updates</h2>
+            <p class="text-xl text-gray-600">Stay informed about opportunities and platform news</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for update in latest_updates %}
+            <article class="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-shadow duration-300">
+                {% if update.banner_image_url %}
+                    <img src="{{ update.banner_image_url }}" alt="{{ update.title }}" 
+                         class="w-full h-48 object-cover rounded-xl mb-4">
+                {% endif %}
+                <h3 class="text-xl font-bold text-gray-900 mb-3">{{ update.title }}</h3>
+                <div class="text-gray-600 mb-4">
+                    {{ update.body_html|truncate(150)|safe }}
+                </div>
+                <p class="text-sm text-gray-500">{{ update.created_at.strftime('%B %d, %Y') }}</p>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Start Your Journey?</h2>
+        <p class="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
+            Join thousands of professionals and clients who are building successful partnerships across Africa. 
+            Your next opportunity is just a click away.
+        </p>
+        
+        {% if current_user.is_authenticated %}
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('profiles.create_profile') }}" 
+                   class="bg-accent-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-accent-600 transition">
+                    Create Profile
+                </a>
+                <a href="{{ url_for('public.browse') }}" 
+                   class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-primary-700 transition">
+                    Browse Opportunities
+                </a>
+            </div>
+        {% else %}
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('auth.signup') }}" 
+                   class="bg-accent-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-accent-600 transition">
+                    Get Started Free
+                </a>
+                <a href="{{ url_for('auth.login') }}" 
+                   class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-primary-700 transition">
+                    I Have an Account
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

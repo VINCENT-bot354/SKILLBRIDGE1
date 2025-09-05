@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Reviews for {{ profile.title }} - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('public.profile_detail', profile_id=profile.id) }}" 
+               class="text-primary-200 hover:text-white transition">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold">Reviews for {{ profile.title }}</h1>
+                <p class="text-primary-100 mt-2">{{ reviews|length }} review{{ 's' if reviews|length != 1 else '' }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Reviews Content -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Sidebar - Profile & Stats -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Profile Summary -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="text-center">
+                        {% if profile.avatar_url %}
+                            <img src="{{ profile.avatar_url }}" alt="{{ profile.title }}" 
+                                 class="w-20 h-20 rounded-full object-cover mx-auto mb-4">
+                        {% else %}
+                            <div class="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-user text-gray-400 text-2xl"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">{{ profile.title }}</h3>
+                        <p class="text-gray-600 mb-2">{{ profile.type.value.title() }}</p>
+                        <p class="text-gray-500 text-sm">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            {{ profile.location_town }}, {{ profile.location_county }}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Overall Ratings -->
+                {% if averages.total_reviews > 0 %}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-gray-900 mb-4 text-center">Overall Ratings</h3>
+                    
+                    <!-- Overall Score -->
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-bold text-primary-600 mb-2">{{ averages.overall }}</div>
+                        <div class="flex justify-center mb-2">
+                            {% include 'components/star_rating.html' with {'rating': averages.overall, 'readonly': true} %}
+                        </div>
+                        <p class="text-gray-600 text-sm">Based on {{ averages.total_reviews }} review{{ 's' if averages.total_reviews != 1 else '' }}</p>
+                    </div>
+                    
+                    <!-- Category Breakdown -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-700">Professionalism</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex">
+                                    {% for i in range(1, 6) %}
+                                        <span class="text-sm {% if i <= averages.professionalism %}text-yellow-500{% else %}text-gray-300{% endif %}">⭐</span>
+                                    {% endfor %}
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">{{ averages.professionalism }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-700">Skill Level</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex">
+                                    {% for i in range(1, 6) %}
+                                        <span class="text-sm {% if i <= averages.skill %}text-yellow-500{% else %}text-gray-300{% endif %}">⭐</span>
+                                    {% endfor %}
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">{{ averages.skill }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-700">Ease of Work</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex">
+                                    {% for i in range(1, 6) %}
+                                        <span class="text-sm {% if i <= averages.ease_of_work %}text-yellow-500{% else %}text-gray-300{% endif %}">⭐</span>
+                                    {% endfor %}
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">{{ averages.ease_of_work }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-gray-900 mb-4">Actions</h3>
+                    <div class="space-y-3">
+                        <a href="{{ url_for('public.profile_detail', profile_id=profile.id) }}" 
+                           class="block w-full bg-primary-600 text-white text-center py-3 rounded-lg hover:bg-primary-700 transition">
+                            <i class="fas fa-eye mr-2"></i>View Full Profile
+                        </a>
+                        {% if current_user.is_authenticated and current_user.id != profile.user_id %}
+                            <a href="{{ url_for('reviews.write_review', user_id=profile.user_id, profile_id=profile.id) }}" 
+                               class="block w-full bg-accent-600 text-white text-center py-3 rounded-lg hover:bg-accent-700 transition">
+                                <i class="fas fa-star mr-2"></i>Write Review
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content - Reviews List -->
+            <div class="lg:col-span-2">
+                {% if reviews %}
+                    <div class="space-y-6">
+                        {% for review in reviews %}
+                            {% include 'components/review_card.html' %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <!-- No Reviews -->
+                    <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+                        <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-star text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">No Reviews Yet</h3>
+                        <p class="text-gray-600 mb-8">
+                            Be the first to share your experience working with {{ profile.title }}.
+                        </p>
+                        {% if current_user.is_authenticated and current_user.id != profile.user_id %}
+                            <a href="{{ url_for('reviews.write_review', user_id=profile.user_id, profile_id=profile.id) }}" 
+                               class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition">
+                                <i class="fas fa-star mr-2"></i>Write First Review
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" 
+                               class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition">
+                                Login to Write Review
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

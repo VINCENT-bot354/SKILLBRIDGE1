@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Create Profile - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Create New Profile</h1>
+        <p class="text-primary-100 mt-2">Showcase your skills or describe what you're looking for</p>
+    </div>
+</section>
+
+<!-- Form -->
+<section class="py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            <!-- Profile Type -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Profile Type</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="type" value="PROFESSIONAL" required 
+                               class="sr-only peer" onchange="toggleProfileFields()">
+                        <div class="border-2 border-gray-200 rounded-xl p-6 peer-checked:border-primary-600 peer-checked:bg-primary-50 hover:border-primary-300 transition">
+                            <div class="text-center">
+                                <div class="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-user-tie text-primary-600 text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Professional</h3>
+                                <p class="text-gray-600 text-sm">I offer services and skills to clients</p>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <label class="cursor-pointer">
+                        <input type="radio" name="type" value="CLIENT" required 
+                               class="sr-only peer" onchange="toggleProfileFields()">
+                        <div class="border-2 border-gray-200 rounded-xl p-6 peer-checked:border-accent-600 peer-checked:bg-accent-50 hover:border-accent-300 transition">
+                            <div class="text-center">
+                                <div class="bg-accent-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-handshake text-accent-600 text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Client</h3>
+                                <p class="text-gray-600 text-sm">I'm looking for professional services</p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Basic Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Title -->
+                    <div class="md:col-span-2">
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Profile Title *</label>
+                        <input type="text" id="title" name="title" required maxlength="200"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                               placeholder="e.g., Expert Plumber, Web Developer, Looking for Catering Services">
+                    </div>
+                    
+                    <!-- Avatar Upload -->
+                    <div>
+                        <label for="avatar" class="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
+                        <input type="file" id="avatar" name="avatar" accept="image/*"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <p class="text-xs text-gray-500 mt-1">Optional: Upload a professional photo (JPG, PNG, GIF)</p>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div>
+                        <label for="location_country" class="block text-sm font-medium text-gray-700 mb-2">Country *</label>
+                        <input type="text" id="location_country" name="location_country" required value="Kenya"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <div>
+                        <label for="location_county" class="block text-sm font-medium text-gray-700 mb-2">County *</label>
+                        <select id="location_county" name="location_county" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select County</option>
+                            {% for county in counties %}
+                                <option value="{{ county }}">{{ county }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="location_town" class="block text-sm font-medium text-gray-700 mb-2">Town/City *</label>
+                        <input type="text" id="location_town" name="location_town" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                               placeholder="e.g., Nairobi, Mombasa, Nakuru">
+                    </div>
+                </div>
+                
+                <!-- Bio -->
+                <div class="mt-6">
+                    <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                    <textarea id="bio" name="bio" required rows="4" maxlength="1000"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                              placeholder="Describe your skills, experience, or what you're looking for..."></textarea>
+                    <p class="text-xs text-gray-500 mt-1">Maximum 1000 characters</p>
+                </div>
+                
+                <!-- Tags -->
+                <div class="mt-6">
+                    <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">Skills/Tags</label>
+                    <input type="text" id="tags" name="tags"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="e.g., plumbing, repairs, installation, emergency services">
+                    <p class="text-xs text-gray-500 mt-1">Separate tags with commas</p>
+                </div>
+            </div>
+
+            <!-- Professional Fields -->
+            <div id="professional-fields" class="bg-white rounded-2xl shadow-lg p-8 hidden">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Professional Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Service Category</label>
+                        <select id="category" name="category"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Category</option>
+                            {% for category in categories %}
+                                <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Experience -->
+                    <div>
+                        <label for="years_experience" class="block text-sm font-medium text-gray-700 mb-2">Years of Experience</label>
+                        <input type="number" id="years_experience" name="years_experience" min="0" max="50"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <!-- Rate Type -->
+                    <div>
+                        <label for="rate_type" class="block text-sm font-medium text-gray-700 mb-2">Rate Type</label>
+                        <select id="rate_type" name="rate_type"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Rate Type</option>
+                            <option value="hourly">Hourly</option>
+                            <option value="daily">Daily</option>
+                            <option value="fixed">Fixed Project</option>
+                            <option value="negotiable">Negotiable</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Rate Value -->
+                    <div>
+                        <label for="rate_value" class="block text-sm font-medium text-gray-700 mb-2">Rate (KES)</label>
+                        <input type="number" id="rate_value" name="rate_value" min="0" step="50"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                               placeholder="e.g., 1500">
+                        <p class="text-xs text-gray-500 mt-1">Optional: Leave blank if negotiable</p>
+                    </div>
+                    
+                    <!-- Team/Group -->
+                    <div class="md:col-span-2">
+                        <div class="flex items-center mb-4">
+                            <input type="checkbox" id="is_group" name="is_group" value="1"
+                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                            <label for="is_group" class="ml-2 block text-sm text-gray-700">
+                                This is a team/group profile
+                            </label>
+                        </div>
+                        <div id="team-name-field" class="hidden">
+                            <label for="team_name" class="block text-sm font-medium text-gray-700 mb-2">Team/Group Name</label>
+                            <input type="text" id="team_name" name="team_name"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                   placeholder="e.g., ABC Construction Team">
+                        </div>
+                    </div>
+                    
+                    <!-- Certifications -->
+                    <div class="md:col-span-2">
+                        <label for="certifications" class="block text-sm font-medium text-gray-700 mb-2">Certifications & Qualifications</label>
+                        <textarea id="certifications" name="certifications" rows="3"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                  placeholder="List your relevant certifications, licenses, or qualifications..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client Fields -->
+            <div id="client-fields" class="bg-white rounded-2xl shadow-lg p-8 hidden">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">What You're Looking For</h2>
+                <div class="space-y-6">
+                    <!-- What Looking For -->
+                    <div>
+                        <label for="what_looking_for" class="block text-sm font-medium text-gray-700 mb-2">Describe Your Needs</label>
+                        <textarea id="what_looking_for" name="what_looking_for" rows="4"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                  placeholder="Describe the services you need, project details, requirements..."></textarea>
+                    </div>
+                    
+                    <!-- Urgency -->
+                    <div>
+                        <label for="urgency" class="block text-sm font-medium text-gray-700 mb-2">Timeline/Urgency</label>
+                        <select id="urgency" name="urgency"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Timeline</option>
+                            <option value="Today">Today</option>
+                            <option value="This week">This week</option>
+                            <option value="This month">This month</option>
+                            <option value="Flexible">Flexible</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Settings -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Profile Settings</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium text-gray-900">Make Profile Public</h3>
+                            <p class="text-sm text-gray-600">Allow other users to find and view your profile</p>
+                        </div>
+                        <input type="checkbox" name="is_listed" value="1" checked
+                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex justify-between items-center">
+                <a href="{{ url_for('profiles.my_profiles') }}" 
+                   class="text-gray-600 hover:text-gray-800 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Profiles
+                </a>
+                <button type="submit" 
+                        class="bg-primary-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-primary-700 transition">
+                    <i class="fas fa-save mr-2"></i>Create Profile
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+function toggleProfileFields() {
+    const professionalFields = document.getElementById('professional-fields');
+    const clientFields = document.getElementById('client-fields');
+    const selectedType = document.querySelector('input[name="type"]:checked')?.value;
+    
+    if (selectedType === 'PROFESSIONAL') {
+        professionalFields.classList.remove('hidden');
+        clientFields.classList.add('hidden');
+    } else if (selectedType === 'CLIENT') {
+        clientFields.classList.remove('hidden');
+        professionalFields.classList.add('hidden');
+    }
+}
+
+// Team name field toggle
+document.getElementById('is_group').addEventListener('change', function() {
+    const teamNameField = document.getElementById('team-name-field');
+    if (this.checked) {
+        teamNameField.classList.remove('hidden');
+    } else {
+        teamNameField.classList.add('hidden');
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,152 @@
+<!-- Profile Card Component -->
+<div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+    <!-- Profile Image -->
+    <div class="relative">
+        {% if profile.avatar_url %}
+            <img src="{{ profile.avatar_url }}" alt="{{ profile.title }}" 
+                 class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+        {% else %}
+            <div class="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                <i class="fas fa-user text-primary-400 text-4xl"></i>
+            </div>
+        {% endif %}
+        
+        <!-- Badges -->
+        <div class="absolute top-4 left-4 flex flex-col space-y-2">
+            {% if profile.is_new_user_flag %}
+                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                    <i class="fas fa-sparkles mr-1"></i>New
+                </span>
+            {% endif %}
+            {% if profile.is_featured %}
+                <span class="bg-accent-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                    <i class="fas fa-star mr-1"></i>Featured
+                </span>
+            {% endif %}
+            {% if profile.is_boosted %}
+                <span class="bg-earth-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                    <i class="fas fa-rocket mr-1"></i>Boosted
+                </span>
+            {% endif %}
+        </div>
+        
+        <!-- Availability Status -->
+        <div class="absolute top-4 right-4">
+            <span class="px-3 py-1 rounded-full text-xs font-medium shadow-lg
+                         {% if profile.availability.value == 'Available' %}bg-green-500 text-white
+                         {% elif profile.availability.value == 'Busy' %}bg-yellow-500 text-white
+                         {% else %}bg-red-500 text-white{% endif %}">
+                <i class="fas fa-circle mr-1 text-xs"></i>{{ profile.availability.value }}
+            </span>
+        </div>
+    </div>
+    
+    <!-- Card Content -->
+    <div class="p-6">
+        <!-- Header -->
+        <div class="mb-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{{ profile.title }}</h3>
+            <div class="flex items-center space-x-2 text-sm text-gray-600">
+                <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full font-medium">
+                    {{ profile.type.value.title() }}
+                </span>
+                {% if profile.type.value == 'PROFESSIONAL' and profile.category %}
+                    <span class="text-gray-500">•</span>
+                    <span>{{ profile.category }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Location -->
+        <div class="flex items-center text-gray-600 text-sm mb-3">
+            <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>
+            <span>{{ profile.location_town }}, {{ profile.location_county }}</span>
+        </div>
+        
+        <!-- Bio -->
+        <p class="text-gray-700 text-sm mb-4 line-clamp-3">{{ profile.bio }}</p>
+        
+        <!-- Professional Info -->
+        {% if profile.type.value == 'PROFESSIONAL' %}
+            <div class="space-y-2 mb-4">
+                {% if profile.years_experience %}
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-briefcase mr-2 w-4"></i>
+                        <span>{{ profile.years_experience }} years experience</span>
+                    </div>
+                {% endif %}
+                {% if profile.rate_type and profile.rate_value %}
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-money-bill mr-2 w-4"></i>
+                        <span>KES {{ "{:,.0f}".format(profile.rate_value) }} / {{ profile.rate_type.value }}</span>
+                    </div>
+                {% elif profile.rate_type %}
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-money-bill mr-2 w-4"></i>
+                        <span>{{ profile.rate_type.value.title() }}</span>
+                    </div>
+                {% endif %}
+                {% if profile.is_group and profile.team_name %}
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-users mr-2 w-4"></i>
+                        <span>{{ profile.team_name }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <!-- Client Info -->
+        {% if profile.type.value == 'CLIENT' and profile.urgency %}
+            <div class="mb-4">
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-clock mr-2 w-4"></i>
+                    <span>Needed: {{ profile.urgency.value }}</span>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Tags -->
+        {% if profile.tags %}
+            <div class="mb-4">
+                <div class="flex flex-wrap gap-2">
+                    {% for tag in profile.tags.split(',')[:3] %}
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                            {{ tag.strip() }}
+                        </span>
+                    {% endfor %}
+                    {% if profile.tags.split(',')|length > 3 %}
+                        <span class="text-gray-500 text-xs">+{{ profile.tags.split(',')|length - 3 }} more</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Rating -->
+        {% set review_count = profile.reviews_received.filter_by(is_approved=True).count() if profile.reviews_received else 0 %}
+        {% if review_count > 0 %}
+            {% set avg_rating = profile.reviews_received.filter_by(is_approved=True) | list | map(attribute='overall_rating') | list | sum / review_count %}
+            <div class="flex items-center mb-4">
+                <div class="flex items-center">
+                    {% for i in range(1, 6) %}
+                        <i class="fas fa-star text-xs {% if i <= avg_rating %}text-yellow-500{% else %}text-gray-300{% endif %}"></i>
+                    {% endfor %}
+                </div>
+                <span class="text-sm text-gray-600 ml-2">{{ "%.1f"|format(avg_rating) }} ({{ review_count }})</span>
+            </div>
+        {% endif %}
+        
+        <!-- Actions -->
+        <div class="flex space-x-2">
+            <a href="{{ url_for('public.profile_detail', profile_id=profile.id) }}" 
+               class="flex-1 bg-primary-600 text-white text-center py-2 px-4 rounded-lg hover:bg-primary-700 transition font-medium">
+                View Profile
+            </a>
+            {% if current_user.is_authenticated and current_user.id != profile.user_id %}
+                <a href="{{ url_for('messaging.start_conversation', user_id=profile.user_id) }}" 
+                   class="bg-accent-600 text-white px-4 py-2 rounded-lg hover:bg-accent-700 transition">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>

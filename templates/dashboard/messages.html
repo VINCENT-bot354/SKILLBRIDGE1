@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Messages</h1>
+        <p class="text-primary-100 mt-2">Your conversations with clients and professionals</p>
+    </div>
+</section>
+
+<!-- Messages Interface -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if conversations %}
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="divide-y divide-gray-200">
+                    {% for conversation in conversations %}
+                        <a href="{{ url_for('messaging.conversation', user_id=conversation.user_id) }}" 
+                           class="block hover:bg-gray-50 transition">
+                            <div class="px-6 py-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <!-- Avatar -->
+                                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-gray-400"></i>
+                                        </div>
+                                        
+                                        <!-- Conversation Info -->
+                                        <div>
+                                            <h3 class="text-lg font-medium text-gray-900">
+                                                {{ conversation.email.split('@')[0] }}
+                                            </h3>
+                                            <p class="text-gray-600 text-sm truncate max-w-md">
+                                                {{ conversation.last_message }}
+                                            </p>
+                                            <p class="text-gray-500 text-xs mt-1">
+                                                {{ conversation.last_message_time.strftime('%B %d, %Y at %I:%M %p') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Status Indicators -->
+                                    <div class="flex items-center space-x-2">
+                                        {% if conversation.unread_count > 0 %}
+                                            <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-6 text-center">
+                                                {{ conversation.unread_count }}
+                                            </span>
+                                        {% endif %}
+                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16">
+                <div class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-envelope text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">No messages yet</h3>
+                <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                    Start connecting with professionals and clients by browsing profiles and sending messages.
+                </p>
+                <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+                    <a href="{{ url_for('public.browse', type='PROFESSIONAL') }}" 
+                       class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition block sm:inline-block">
+                        <i class="fas fa-search mr-2"></i>Find Professionals
+                    </a>
+                    <a href="{{ url_for('public.browse', type='CLIENT') }}" 
+                       class="bg-accent-600 text-white px-6 py-3 rounded-lg hover:bg-accent-700 transition block sm:inline-block">
+                        <i class="fas fa-handshake mr-2"></i>Find Clients
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Quick Tips -->
+<section class="py-8 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-primary-50 rounded-2xl p-8">
+            <h3 class="text-xl font-bold text-primary-800 mb-4">
+                <i class="fas fa-lightbulb mr-2"></i>Messaging Tips
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-primary-700">
+                    <h4 class="font-semibold mb-2">Be Professional</h4>
+                    <p class="text-sm">Use polite language and clear communication to build trust.</p>
+                </div>
+                <div class="text-primary-700">
+                    <h4 class="font-semibold mb-2">Be Specific</h4>
+                    <p class="text-sm">Clearly describe your project requirements or service offerings.</p>
+                </div>
+                <div class="text-primary-700">
+                    <h4 class="font-semibold mb-2">Respond Promptly</h4>
+                    <p class="text-sm">Quick responses help build better professional relationships.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

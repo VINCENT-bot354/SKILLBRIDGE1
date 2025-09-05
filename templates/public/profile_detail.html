@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile.title }} - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+            <div class="lg:col-span-2">
+                <div class="flex items-start space-x-6">
+                    <!-- Avatar -->
+                    <div class="flex-shrink-0">
+                        {% if profile.avatar_url %}
+                            <img src="{{ profile.avatar_url }}" alt="{{ profile.title }}" 
+                                 class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg">
+                        {% else %}
+                            <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center border-4 border-white">
+                                <i class="fas fa-user text-white text-2xl"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Basic Info -->
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <h1 class="text-3xl font-bold">{{ profile.title }}</h1>
+                            {% if profile.is_verified %}
+                                <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    <i class="fas fa-check mr-1"></i>Verified
+                                </span>
+                            {% endif %}
+                            {% if profile.is_featured %}
+                                <span class="bg-accent-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    <i class="fas fa-star mr-1"></i>Featured
+                                </span>
+                            {% endif %}
+                            {% if profile.is_new_user_flag %}
+                                <span class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    <i class="fas fa-sparkles mr-1"></i>New
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="space-y-2 text-primary-100">
+                            <p class="flex items-center">
+                                <i class="fas fa-user-tag mr-2"></i>
+                                {{ profile.type.value.title() }}
+                                {% if profile.type.value == 'PROFESSIONAL' and profile.category %}
+                                    - {{ profile.category }}
+                                {% endif %}
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                {{ profile.location_town }}, {{ profile.location_county }}, {{ profile.location_country }}
+                            </p>
+                            {% if profile.availability %}
+                                <p class="flex items-center">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    <span class="px-2 py-1 bg-{% if profile.availability.value == 'Available' %}green{% elif profile.availability.value == 'Busy' %}yellow{% else %}red{% endif %}-500 text-white rounded-full text-sm">
+                                        {{ profile.availability.value }}
+                                    </span>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="lg:col-span-1">
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6">
+                    {% if current_user.is_authenticated and current_user.id != profile.user_id %}
+                        <div class="space-y-3">
+                            <a href="{{ url_for('messaging.start_conversation', user_id=profile.user_id) }}" 
+                               class="block w-full bg-accent-500 text-white text-center px-4 py-3 rounded-lg hover:bg-accent-600 transition font-medium">
+                                <i class="fas fa-envelope mr-2"></i>Send Message
+                            </a>
+                            <a href="{{ url_for('reviews.write_review', user_id=profile.user_id, profile_id=profile.id) }}" 
+                               class="block w-full bg-transparent border-2 border-white text-white text-center px-4 py-3 rounded-lg hover:bg-white hover:text-primary-700 transition font-medium">
+                                <i class="fas fa-star mr-2"></i>Write Review
+                            </a>
+                        </div>
+                        
+                        <!-- Contact Info (for logged in users) -->
+                        <div class="mt-6 pt-6 border-t border-white border-opacity-20">
+                            <h3 class="font-semibold mb-3">Contact Information</h3>
+                            <p class="text-primary-100 text-sm">
+                                <i class="fas fa-envelope mr-2"></i>{{ profile.user.email }}
+                            </p>
+                        </div>
+                    {% elif not current_user.is_authenticated %}
+                        <div class="text-center">
+                            <p class="text-primary-100 mb-4">Login to view contact details and send messages</p>
+                            <div class="space-y-2">
+                                <a href="{{ url_for('auth.login') }}" 
+                                   class="block w-full bg-accent-500 text-white text-center px-4 py-3 rounded-lg hover:bg-accent-600 transition font-medium">
+                                    Login
+                                </a>
+                                <a href="{{ url_for('auth.signup') }}" 
+                                   class="block w-full bg-transparent border-2 border-white text-white text-center px-4 py-3 rounded-lg hover:bg-white hover:text-primary-700 transition font-medium">
+                                    Sign Up
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Profile Content -->
+<section class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- About -->
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">About</h2>
+                    <p class="text-gray-700 leading-relaxed">{{ profile.bio }}</p>
+                    
+                    {% if profile.tags %}
+                        <div class="mt-6">
+                            <h3 class="font-semibold text-gray-900 mb-3">Skills & Tags</h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for tag in profile.tags.split(',') %}
+                                    <span class="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm">
+                                        {{ tag.strip() }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Professional Details -->
+                {% if profile.type.value == 'PROFESSIONAL' %}
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Professional Details</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {% if profile.category %}
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Category</h3>
+                                <p class="text-gray-700">{{ profile.category }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if profile.years_experience %}
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Experience</h3>
+                                <p class="text-gray-700">{{ profile.years_experience }} years</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if profile.rate_type and profile.rate_value %}
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Rate</h3>
+                                <p class="text-gray-700">KES {{ "{:,.0f}".format(profile.rate_value) }} / {{ profile.rate_type.value }}</p>
+                            </div>
+                        {% elif profile.rate_type %}
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Rate</h3>
+                                <p class="text-gray-700">{{ profile.rate_type.value.title() }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if profile.is_group and profile.team_name %}
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Team/Group</h3>
+                                <p class="text-gray-700">{{ profile.team_name }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if profile.certifications %}
+                        <div class="mt-6">
+                            <h3 class="font-semibold text-gray-900 mb-3">Certifications</h3>
+                            <p class="text-gray-700">{{ profile.certifications }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Client Details -->
+                {% if profile.type.value == 'CLIENT' %}
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">What I'm Looking For</h2>
+                    
+                    {% if profile.what_looking_for %}
+                        <p class="text-gray-700 mb-6">{{ profile.what_looking_for }}</p>
+                    {% endif %}
+                    
+                    {% if profile.urgency %}
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-2">Timeline</h3>
+                            <span class="bg-accent-100 text-accent-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {{ profile.urgency.value }}
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Reviews -->
+                {% if reviews or averages.total_reviews > 0 %}
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Reviews ({{ averages.total_reviews }})</h2>
+                        <a href="{{ url_for('reviews.profile_reviews', profile_id=profile.id) }}" 
+                           class="text-primary-600 hover:text-primary-700 font-medium">
+                            View All Reviews
+                        </a>
+                    </div>
+                    
+                    <!-- Average Ratings -->
+                    {% if averages.total_reviews > 0 %}
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-primary-600">{{ averages.overall }}</div>
+                                <div class="text-sm text-gray-600">Overall</div>
+                                {% include 'components/star_rating.html' with {'rating': averages.overall, 'readonly': true} %}
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-semibold text-gray-800">{{ averages.professionalism }}</div>
+                                <div class="text-sm text-gray-600">Professionalism</div>
+                                {% include 'components/star_rating.html' with {'rating': averages.professionalism, 'readonly': true} %}
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-semibold text-gray-800">{{ averages.skill }}</div>
+                                <div class="text-sm text-gray-600">Skill</div>
+                                {% include 'components/star_rating.html' with {'rating': averages.skill, 'readonly': true} %}
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-semibold text-gray-800">{{ averages.ease_of_work }}</div>
+                                <div class="text-sm text-gray-600">Ease of Work</div>
+                                {% include 'components/star_rating.html' with {'rating': averages.ease_of_work, 'readonly': true} %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Recent Reviews -->
+                    {% if reviews %}
+                        <div class="space-y-6">
+                            {% for review in reviews %}
+                                {% include 'components/review_card.html' %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Quick Stats -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-gray-900 mb-4">Quick Stats</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Member Since</span>
+                            <span class="font-medium">{{ profile.created_at.strftime('%B %Y') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Profile Views</span>
+                            <span class="font-medium">-</span>
+                        </div>
+                        {% if averages.total_reviews > 0 %}
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Reviews</span>
+                                <span class="font-medium">{{ averages.total_reviews }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Rating</span>
+                                <span class="font-medium">{{ averages.overall }}/5</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Similar Profiles -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-gray-900 mb-4">Similar Profiles</h3>
+                    <p class="text-gray-600 text-sm">
+                        <a href="{{ url_for('public.browse', type=profile.type.value, category=profile.category) }}" 
+                           class="text-primary-600 hover:text-primary-700">
+                            View more {{ profile.type.value.lower() }}s
+                            {% if profile.category %}in {{ profile.category }}{% endif %}
+                        </a>
+                    </p>
+                </div>
+                
+                <!-- Report Profile -->
+                <div class="bg-red-50 rounded-2xl p-6">
+                    <h3 class="font-bold text-red-800 mb-2">Report Profile</h3>
+                    <p class="text-red-600 text-sm mb-3">Found something inappropriate?</p>
+                    <button class="text-red-600 hover:text-red-800 text-sm font-medium">
+                        <i class="fas fa-flag mr-1"></i>Report this profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

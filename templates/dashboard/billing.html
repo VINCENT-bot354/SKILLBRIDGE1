@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Billing & Plans - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Billing & Plans</h1>
+        <p class="text-primary-100 mt-2">Upgrade your profile to unlock premium features</p>
+    </div>
+</section>
+
+<!-- Profile Selection -->
+{% if profiles|length > 1 %}
+<section class="py-6 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Select Profile for Upgrade</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for profile in profiles %}
+                    <a href="{{ url_for('billing.plans', profile_id=profile.id) }}" 
+                       class="block p-4 border rounded-lg hover:shadow-md transition
+                              {% if current_profile and current_profile.id == profile.id %}border-primary-600 bg-primary-50{% else %}border-gray-200 hover:border-primary-300{% endif %}">
+                        <div class="flex items-center space-x-3">
+                            {% if profile.avatar_url %}
+                                <img src="{{ profile.avatar_url }}" alt="{{ profile.title }}" 
+                                     class="w-10 h-10 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h4 class="font-medium text-gray-900">{{ profile.title }}</h4>
+                                <p class="text-sm text-gray-600">{{ profile.type.value.title() }}</p>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Current Subscriptions -->
+{% if subscriptions %}
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Active Subscriptions</h2>
+            <div class="space-y-4">
+                {% for subscription in subscriptions %}
+                    <div class="border border-green-200 bg-green-50 rounded-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-green-800">{{ subscription.plan.name }}</h3>
+                                <p class="text-green-600">Active until {{ subscription.end_at.strftime('%B %d, %Y') }}</p>
+                                <p class="text-sm text-green-700 mt-1">
+                                    Profile: {{ subscription.profile.title }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    Active
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Available Plans -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if plans %}
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    Choose Your Plan
+                    {% if current_profile %}
+                        for {{ current_profile.title }}
+                    {% endif %}
+                </h2>
+                <p class="text-gray-600">Unlock premium features and boost your profile visibility</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for plan in plans %}
+                    <div class="bg-white rounded-2xl shadow-lg p-8 relative hover:shadow-xl transition-shadow duration-300">
+                        <!-- Popular Badge -->
+                        {% if loop.index == 2 %}
+                            <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                <span class="bg-accent-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                                    Most Popular
+                                </span>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Plan Header -->
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ plan.name }}</h3>
+                            <div class="text-4xl font-bold text-primary-600 mb-2">
+                                KES {{ "{:,.0f}".format(plan.price_kes) }}
+                            </div>
+                            <p class="text-gray-600">for {{ plan.duration_days }} days</p>
+                            <span class="bg-{{ 'primary' if plan.audience.value == 'PROFESSIONAL' else 'accent' }}-100 
+                                       text-{{ 'primary' if plan.audience.value == 'PROFESSIONAL' else 'accent' }}-800 
+                                       px-3 py-1 rounded-full text-sm font-medium">
+                                {{ plan.audience.value.title() }} Plan
+                            </span>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div class="space-y-3 mb-8">
+                            {% set features = plan.features_json | tojsonfilter if plan.features_json else {} %}
+                            
+                            <!-- Default features based on plan type -->
+                            {% if plan.audience.value == 'PROFESSIONAL' %}
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    Featured profile placement
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    Higher search visibility
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    Unlimited messaging
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    Priority customer support
+                                </div>
+                            {% else %}
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    Unlimited professional contacts
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    Priority in professional searches
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    Advanced search filters
+                                </div>
+                                <div class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    Project posting privileges
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Custom features from JSON -->
+                            {% if features %}
+                                {% for feature, value in features.items() %}
+                                    {% if value is boolean and value %}
+                                        <div class="flex items-center text-sm text-gray-700">
+                                            <i class="fas fa-check text-green-500 mr-3"></i>
+                                            {{ feature.replace('_', ' ').title() }}
+                                        </div>
+                                    {% elif value is not boolean %}
+                                        <div class="flex items-center text-sm text-gray-700">
+                                            <i class="fas fa-check text-green-500 mr-3"></i>
+                                            {{ feature.replace('_', ' ').title() }}: {{ value }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- CTA Button -->
+                        <button onclick="openPaymentModal({{ plan.id }}, '{{ plan.name }}', {{ plan.price_kes }})"
+                                class="w-full bg-primary-600 text-white py-3 px-6 rounded-lg hover:bg-primary-700 transition font-semibold">
+                            Choose Plan
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- No Plans Available -->
+            <div class="text-center py-16">
+                <div class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-crown text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">No plans available</h3>
+                <p class="text-gray-600 mb-8">
+                    Plans for your profile type are currently being set up. Please check back soon.
+                </p>
+                {% if not current_profile %}
+                    <a href="{{ url_for('profiles.create_profile') }}" 
+                       class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition">
+                        Create a Profile First
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Payment Modal -->
+<div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+        <div class="text-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Complete Payment</h3>
+            <p class="text-gray-600">Pay with M-Pesa to activate your plan</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('billing.start_payment') }}">
+            <input type="hidden" id="modal_plan_id" name="plan_id">
+            <input type="hidden" id="modal_profile_id" name="profile_id" value="{{ current_profile.id if current_profile }}">
+            
+            <!-- Plan Summary -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="flex justify-between items-center">
+                    <span class="font-medium text-gray-900">Plan:</span>
+                    <span id="modal_plan_name" class="text-gray-700"></span>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="font-medium text-gray-900">Amount:</span>
+                    <span id="modal_plan_price" class="text-2xl font-bold text-primary-600"></span>
+                </div>
+            </div>
+            
+            <!-- M-Pesa Phone -->
+            <div class="mb-6">
+                <label for="mpesa_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                    M-Pesa Phone Number
+                </label>
+                <input type="tel" id="mpesa_phone" name="mpesa_phone" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                       placeholder="e.g., 0722123456">
+                <p class="text-xs text-gray-500 mt-1">Enter your M-Pesa registered phone number</p>
+            </div>
+            
+            <!-- Payment Info -->
+            <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                    <div class="text-sm text-blue-700">
+                        <p class="font-medium mb-1">How it works:</p>
+                        <ol class="space-y-1">
+                            <li>1. You'll receive an M-Pesa prompt on your phone</li>
+                            <li>2. Enter your M-Pesa PIN to complete payment</li>
+                            <li>3. Your plan will be activated immediately</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex space-x-4">
+                <button type="button" onclick="closePaymentModal()" 
+                        class="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-400 transition">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="flex-1 bg-primary-600 text-white py-3 px-6 rounded-lg hover:bg-primary-700 transition">
+                    Pay Now
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payment History Link -->
+<section class="py-8 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+            <a href="{{ url_for('billing.payment_history') }}" 
+               class="bg-white text-gray-700 px-6 py-3 rounded-lg hover:shadow-md transition block sm:inline-block">
+                <i class="fas fa-history mr-2"></i>Payment History
+            </a>
+            <a href="{{ url_for('billing.subscriptions') }}" 
+               class="bg-white text-gray-700 px-6 py-3 rounded-lg hover:shadow-md transition block sm:inline-block">
+                <i class="fas fa-list mr-2"></i>All Subscriptions
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+function openPaymentModal(planId, planName, planPrice) {
+    {% if not current_profile %}
+        alert('Please select a profile first');
+        return;
+    {% endif %}
+    
+    document.getElementById('modal_plan_id').value = planId;
+    document.getElementById('modal_plan_name').textContent = planName;
+    document.getElementById('modal_plan_price').textContent = 'KES ' + planPrice.toLocaleString();
+    document.getElementById('paymentModal').classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+}
+
+// Close modal on outside click
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePaymentModal();
+    }
+});
+</script>
+{% endblock %}

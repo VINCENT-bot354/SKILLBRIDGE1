@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Payment History - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Payment History</h1>
+        <p class="text-primary-100 mt-2">View all your past transactions</p>
+    </div>
+</section>
+
+<!-- Payment History -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if payments.items %}
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Transaction History</h2>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Plan
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Profile
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Amount
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for payment in payments.items %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ payment.created_at.strftime('%B %d, %Y') }}
+                                        <div class="text-xs text-gray-500">
+                                            {{ payment.created_at.strftime('%I:%M %p') }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ payment.plan.name }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ payment.plan.duration_days }} days
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">
+                                            {{ payment.profile.title[:30] }}{% if payment.profile.title|length > 30 %}...{% endif %}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ payment.profile.type.value.title() }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        KES {{ "{:,.0f}".format(payment.amount_kes) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                                   {% if payment.status.value == 'SUCCESS' %}bg-green-100 text-green-800
+                                                   {% elif payment.status.value == 'FAILED' %}bg-red-100 text-red-800
+                                                   {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {{ payment.status.value.title() }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="{{ url_for('billing.payment_status', payment_id=payment.id) }}" 
+                                           class="text-primary-600 hover:text-primary-900">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            {% if payments.pages > 1 %}
+                <div class="mt-8 flex justify-center">
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        {% if payments.has_prev %}
+                            <a href="{{ url_for('billing.payment_history', page=payments.prev_num) }}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        {% endif %}
+                        
+                        {% for page_num in payments.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != payments.page %}
+                                    <a href="{{ url_for('billing.payment_history', page=page_num) }}" 
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        {{ page_num }}
+                                    </a>
+                                {% else %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary-50 text-sm font-medium text-primary-600">
+                                        {{ page_num }}
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                    ...
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if payments.has_next %}
+                            <a href="{{ url_for('billing.payment_history', page=payments.next_num) }}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16">
+                <div class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-receipt text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">No payment history</h3>
+                <p class="text-gray-600 mb-8">You haven't made any payments yet.</p>
+                <a href="{{ url_for('billing.plans') }}" 
+                   class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition">
+                    <i class="fas fa-crown mr-2"></i>Upgrade Now
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Summary Cards -->
+<section class="py-8 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Total Spent -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-coins text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        {% set total_spent = payments.items | selectattr('status.value', 'equalto', 'SUCCESS') | sum(attribute='amount_kes') %}
+                        <h3 class="text-2xl font-bold text-gray-900">KES {{ "{:,.0f}".format(total_spent) }}</h3>
+                        <p class="text-gray-600">Total Spent</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Successful Payments -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="bg-primary-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check text-primary-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        {% set successful_count = payments.items | selectattr('status.value', 'equalto', 'SUCCESS') | list | length %}
+                        <h3 class="text-2xl font-bold text-gray-900">{{ successful_count }}</h3>
+                        <p class="text-gray-600">Successful Payments</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Failed Payments -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-times text-red-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        {% set failed_count = payments.items | selectattr('status.value', 'equalto', 'FAILED') | list | length %}
+                        <h3 class="text-2xl font-bold text-gray-900">{{ failed_count }}</h3>
+                        <p class="text-gray-600">Failed Payments</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Back to Billing -->
+        <div class="text-center mt-8">
+            <a href="{{ url_for('billing.plans') }}" 
+               class="text-primary-600 hover:text-primary-700 font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Plans
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

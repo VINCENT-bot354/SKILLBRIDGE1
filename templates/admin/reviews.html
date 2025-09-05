@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Review Management - Admin - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-red-600 to-red-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Review Management</h1>
+                <p class="text-red-100 mt-2">Moderate and manage user reviews</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" 
+               class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-400 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Reviews List -->
+<section class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if reviews.items %}
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <!-- Header -->
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Reviews ({{ reviews.total }} total)
+                    </h2>
+                </div>
+                
+                <!-- Reviews -->
+                <div class="divide-y divide-gray-200">
+                    {% for review in reviews.items %}
+                        <div class="p-6 hover:bg-gray-50">
+                            <div class="flex items-start justify-between">
+                                <!-- Review Content -->
+                                <div class="flex-1">
+                                    <!-- Header -->
+                                    <div class="flex items-center space-x-4 mb-3">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="font-medium text-gray-900">
+                                                {{ review.reviewer.email.split('@')[0] }}
+                                            </span>
+                                            <span class="text-gray-500">reviewed</span>
+                                            <span class="font-medium text-gray-900">
+                                                {{ review.reviewed_user.email.split('@')[0] }}
+                                            </span>
+                                        </div>
+                                        <span class="text-sm text-gray-500">
+                                            {{ review.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Profile Info -->
+                                    <div class="mb-3">
+                                        <a href="{{ url_for('public.profile_detail', profile_id=review.reviewed_profile_id) }}" 
+                                           class="text-blue-600 hover:text-blue-700 text-sm">
+                                            Profile: {{ review.reviewed_profile.title }}
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Ratings -->
+                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 bg-gray-50 rounded-lg p-4">
+                                        <div class="text-center">
+                                            <div class="text-lg font-bold text-gray-900">{{ review.overall_rating }}</div>
+                                            <div class="text-xs text-gray-600">Overall</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-sm font-semibold text-gray-800">{{ review.professionalism_rating }}/5</div>
+                                            <div class="text-xs text-gray-600">Professionalism</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-sm font-semibold text-gray-800">{{ review.skill_rating }}/5</div>
+                                            <div class="text-xs text-gray-600">Skill</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-sm font-semibold text-gray-800">{{ review.ease_of_work_rating }}/5</div>
+                                            <div class="text-xs text-gray-600">Ease of Work</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Review Text -->
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <p class="text-gray-700">{{ review.content }}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Actions -->
+                                <div class="ml-6 flex flex-col space-y-2">
+                                    <!-- Status Badge -->
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                               {% if review.is_approved %}bg-green-100 text-green-800
+                                               {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if review.is_approved %}Approved{% else %}Hidden{% endif %}
+                                    </span>
+                                    
+                                    <!-- Toggle Approval -->
+                                    <a href="{{ url_for('admin.toggle_review_approval', review_id=review.id) }}" 
+                                       onclick="return confirm('Toggle review approval status?')"
+                                       class="text-sm {% if review.is_approved %}text-red-600 hover:text-red-700{% else %}text-green-600 hover:text-green-700{% endif %} text-center">
+                                        {% if review.is_approved %}Hide Review{% else %}Approve Review{% endif %}
+                                    </a>
+                                    
+                                    <!-- View Profile -->
+                                    <a href="{{ url_for('public.profile_detail', profile_id=review.reviewed_profile_id) }}" 
+                                       class="text-sm text-blue-600 hover:text-blue-700 text-center">
+                                        View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            {% if reviews.pages > 1 %}
+                <div class="mt-8 flex justify-center">
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        {% if reviews.has_prev %}
+                            <a href="{{ url_for('admin.reviews', page=reviews.prev_num) }}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        {% endif %}
+                        
+                        {% for page_num in reviews.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != reviews.page %}
+                                    <a href="{{ url_for('admin.reviews', page=page_num) }}" 
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        {{ page_num }}
+                                    </a>
+                                {% else %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-red-50 text-sm font-medium text-red-600">
+                                        {{ page_num }}
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                    ...
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if reviews.has_next %}
+                            <a href="{{ url_for('admin.reviews', page=reviews.next_num) }}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16">
+                <div class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-star text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">No Reviews Yet</h3>
+                <p class="text-gray-600">Reviews will appear here as users start rating each other.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Moderation Guidelines -->
+<section class="py-8 bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-yellow-50 rounded-2xl p-8">
+            <h3 class="text-xl font-bold text-yellow-800 mb-4">
+                <i class="fas fa-exclamation-triangle mr-2"></i>Review Moderation Guidelines
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="text-yellow-700">
+                    <h4 class="font-semibold mb-2">Approve Reviews That:</h4>
+                    <ul class="text-sm space-y-1">
+                        <li>• Provide honest, constructive feedback</li>
+                        <li>• Are based on actual work experiences</li>
+                        <li>• Use professional language</li>
+                        <li>• Focus on work quality and professionalism</li>
+                    </ul>
+                </div>
+                <div class="text-yellow-700">
+                    <h4 class="font-semibold mb-2">Hide Reviews That:</h4>
+                    <ul class="text-sm space-y-1">
+                        <li>• Contain inappropriate language or personal attacks</li>
+                        <li>• Are clearly fake or spam</li>
+                        <li>• Violate platform guidelines</li>
+                        <li>• Are unrelated to professional services</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
