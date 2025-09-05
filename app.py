@@ -60,6 +60,12 @@ def create_app():
         from models import User
         return User.query.get(int(user_id))
     
+    # Add context processor for current year
+    @app.context_processor
+    def inject_current_year():
+        from datetime import datetime
+        return {'current_year': datetime.now().year}
+    
     # Register blueprints
     from blueprints.public import public_bp
     from blueprints.auth import auth_bp
