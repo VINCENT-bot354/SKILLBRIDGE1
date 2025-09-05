@@ -206,7 +206,7 @@
                         <li><a href="{{ url_for('public.about') }}" class="hover:text-white transition">About Us</a></li>
                         <li><a href="{{ url_for('public.browse') }}" class="hover:text-white transition">Browse Profiles</a></li>
                         <li><a href="{{ url_for('auth.signup') }}" class="hover:text-white transition">Get Started</a></li>
-                        <li><a href="#" class="hover:text-white transition">Help Center</a></li>
+                        <li><a href="{{ url_for('public.help_center') }}" class="hover:text-white transition">Help Center</a></li>
                     </ul>
                 </div>
 
@@ -220,6 +220,41 @@
                     </ul>
                 </div>
             </div>
+
+            <!-- Customer Support Section -->
+            {% if settings and (settings.support_whatsapp or settings.support_phone or settings.support_email) %}
+            <div class="border-t border-primary-700 mt-8 pt-8">
+                <div class="text-center mb-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Customer Support</h3>
+                    <div class="flex flex-wrap justify-center gap-6 text-primary-200">
+                        {% if settings.support_whatsapp %}
+                        <a href="https://wa.me/{{ settings.support_whatsapp.replace('+', '').replace(' ', '') }}" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="flex items-center hover:text-white transition">
+                            <i class="fab fa-whatsapp mr-2"></i>
+                            WhatsApp: {{ settings.support_whatsapp }}
+                        </a>
+                        {% endif %}
+                        
+                        {% if settings.support_phone %}
+                        <a href="tel:{{ settings.support_phone }}" 
+                           class="flex items-center hover:text-white transition">
+                            <i class="fas fa-phone mr-2"></i>
+                            Phone: {{ settings.support_phone }}
+                        </a>
+                        {% endif %}
+                        
+                        {% if settings.support_email %}
+                        <a href="mailto:{{ settings.support_email }}" 
+                           class="flex items-center hover:text-white transition">
+                            <i class="fas fa-envelope mr-2"></i>
+                            Email: {{ settings.support_email }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <div class="border-t border-primary-700 mt-8 pt-8 text-center text-primary-200">
                 <p>&copy; {{ current_year }} SkillBridge Africa. All rights reserved.</p>

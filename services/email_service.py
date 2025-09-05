@@ -111,19 +111,25 @@ class EmailService:
     @staticmethod
     def configure_mail_from_settings():
         """Configure mail settings from admin settings if env vars not available"""
-        if not current_app.config.get('MAIL_USERNAME'):
-            settings = AdminSettings.query.first()
-            if settings and settings.email_username:
-                current_app.config['MAIL_SERVER'] = settings.email_server or 'smtp.gmail.com'
-                current_app.config['MAIL_PORT'] = settings.email_port or 587
-                current_app.config['MAIL_USERNAME'] = settings.email_username
-                current_app.config['MAIL_PASSWORD'] = settings.email_password
-                current_app.config['MAIL_DEFAULT_SENDER'] = settings.email_username
-                
-                # Reinitialize mail with new settings
-                mail.init_app(current_app)
-                return True
-        return False
+        try:
+            if not current_app.config.get('MAIL_USERNAME'):
+                settings = AdminSettings.query.first()
+                if settings and settings.email_username:
+                    current_app.config['MAIL_SERVER'] = settings.email_server or 'smtp.gmail.com'
+                    current_app.config['MAIL_PORT'] = settings.email_port or 587
+                    current_app.config['MAIL_USE_TLS'] = True
+                    current_app.config['MAIL_USE_SSL'] = False
+                    current_app.config['MAIL_USERNAME'] = settings.email_username
+                    current_app.config['MAIL_PASSWORD'] = settings.email_password
+                    current_app.config['MAIL_DEFAULT_SENDER'] = settings.email_username
+                    
+                    # Reinitialize mail with new settings
+                    mail.init_app(current_app)
+                    return True
+            return True  # Return True if already configured
+        except Exception as e:
+            current_app.logger.error(f"Email configuration error: {str(e)}")
+            return False
     
     @staticmethod
     def send_notification(email, subject, message):

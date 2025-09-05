@@ -1,0 +1,196 @@
+
+{% extends "base.html" %}
+
+{% block title %}Help Center - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">Help Center</h1>
+            <p class="text-xl text-primary-100 max-w-3xl mx-auto">
+                Get support, report issues, and find answers to your questions. We're here to help you succeed.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Support Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Contact Our Support Team</h2>
+            <p class="text-xl text-gray-600">Choose your preferred way to get in touch with us</p>
+        </div>
+        
+        {% if settings and (settings.support_email or settings.support_phone or settings.support_whatsapp) %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            {% if settings.support_email %}
+            <div class="text-center p-8 bg-gray-50 rounded-xl hover:shadow-lg transition">
+                <div class="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-envelope text-primary-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Email Support</h3>
+                <p class="text-gray-600 mb-4">Send us an email and we'll respond within 24 hours</p>
+                <a href="mailto:{{ settings.support_email }}" 
+                   class="inline-flex items-center bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition font-medium">
+                    <i class="fas fa-envelope mr-2"></i>
+                    {{ settings.support_email }}
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if settings.support_phone %}
+            <div class="text-center p-8 bg-gray-50 rounded-xl hover:shadow-lg transition">
+                <div class="bg-accent-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-phone text-accent-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Phone Support</h3>
+                <p class="text-gray-600 mb-4">Call us directly for immediate assistance</p>
+                <a href="tel:{{ settings.support_phone }}" 
+                   class="inline-flex items-center bg-accent-600 text-white px-6 py-3 rounded-lg hover:bg-accent-700 transition font-medium">
+                    <i class="fas fa-phone mr-2"></i>
+                    {{ settings.support_phone }}
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if settings.support_whatsapp %}
+            <div class="text-center p-8 bg-gray-50 rounded-xl hover:shadow-lg transition">
+                <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fab fa-whatsapp text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">WhatsApp Support</h3>
+                <p class="text-gray-600 mb-4">Chat with us on WhatsApp for quick help</p>
+                <a href="https://wa.me/{{ settings.support_whatsapp.replace('+', '').replace(' ', '') }}" 
+                   target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-medium">
+                    <i class="fab fa-whatsapp mr-2"></i>
+                    {{ settings.support_whatsapp }}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center p-8 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <i class="fas fa-exclamation-triangle text-yellow-600 text-3xl mb-4"></i>
+            <p class="text-yellow-800">Contact information is being updated. Please check back soon.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Report Issues Section -->
+<section class="py-16 bg-primary-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Report Issues or Unprofessional Behavior</h2>
+            <p class="text-xl text-gray-600">We maintain high standards and take all reports seriously</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div class="bg-white rounded-xl p-8 shadow-sm">
+                <div class="flex items-start mb-6">
+                    <div class="bg-red-100 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-user-tie text-red-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Report a Professional</h3>
+                        <p class="text-gray-600">If a professional has acted unprofessionally, failed to deliver services, or violated our terms</p>
+                    </div>
+                </div>
+                <ul class="text-sm text-gray-600 space-y-2 mb-6">
+                    <li>• Unprofessional behavior or communication</li>
+                    <li>• Failure to deliver promised services</li>
+                    <li>• Violation of agreement terms</li>
+                    <li>• Inappropriate conduct</li>
+                </ul>
+            </div>
+            
+            <div class="bg-white rounded-xl p-8 shadow-sm">
+                <div class="flex items-start mb-6">
+                    <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Report a Client</h3>
+                        <p class="text-gray-600">If a client has been abusive, refused payment, or violated our terms</p>
+                    </div>
+                </div>
+                <ul class="text-sm text-gray-600 space-y-2 mb-6">
+                    <li>• Non-payment or payment disputes</li>
+                    <li>• Abusive or disrespectful behavior</li>
+                    <li>• Unreasonable demands or expectations</li>
+                    <li>• Violation of platform guidelines</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12">
+            <div class="bg-white rounded-xl p-8 shadow-sm max-w-2xl mx-auto">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">How to Report</h3>
+                <p class="text-gray-600 mb-6">
+                    To report any issues or unprofessional behavior, contact our support team using any of the methods above. 
+                    Please provide as much detail as possible including:
+                </p>
+                <ul class="text-left text-gray-600 space-y-2 max-w-md mx-auto">
+                    <li>• Names of involved parties</li>
+                    <li>• Description of the incident</li>
+                    <li>• Date and time of occurrence</li>
+                    <li>• Any supporting evidence (screenshots, messages, etc.)</li>
+                </ul>
+                <p class="text-sm text-gray-500 mt-6">
+                    All reports are kept confidential and will be investigated promptly. We are committed to maintaining a safe and professional environment for all users.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <p class="text-xl text-gray-600">Find quick answers to common questions</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="font-bold text-gray-900 mb-2">How do I create a profile?</h3>
+                    <p class="text-gray-600">Sign up for an account, verify your email, then create either a Professional or Client profile from your dashboard.</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="font-bold text-gray-900 mb-2">How do payments work?</h3>
+                    <p class="text-gray-600">We use secure M-Pesa integration for payments. All transactions are processed safely through our platform.</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="font-bold text-gray-900 mb-2">How do I contact other users?</h3>
+                    <p class="text-gray-600">Use our secure messaging system to communicate with other professionals and clients through your dashboard.</p>
+                </div>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="font-bold text-gray-900 mb-2">What if I have a dispute?</h3>
+                    <p class="text-gray-600">Contact our support team immediately. We have processes in place to resolve disputes fairly and quickly.</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="font-bold text-gray-900 mb-2">How do I verify my profile?</h3>
+                    <p class="text-gray-600">Upload required documents and wait for admin verification. Verified profiles get better visibility and trust.</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="font-bold text-gray-900 mb-2">Can I have multiple profiles?</h3>
+                    <p class="text-gray-600">Yes, you can create both Professional and Client profiles under the same account as needed.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

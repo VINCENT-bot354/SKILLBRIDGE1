@@ -189,4 +189,29 @@
         {% endif %}
     </div>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterToggle = document.getElementById('filter-toggle');
+        const filterContent = document.getElementById('filter-content');
+        const filterIcon = document.getElementById('filter-icon');
+
+        if (filterToggle && filterContent && filterIcon) {
+            filterToggle.addEventListener('click', function() {
+                const isHidden = filterContent.classList.contains('hidden');
+                filterContent.classList.toggle('hidden');
+                filterIcon.classList.toggle('rotate-180', !isHidden);
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                const isClickInsideFilter = filterToggle.contains(event.target) || filterContent.contains(event.target);
+                if (!isClickInsideFilter && !filterContent.classList.contains('hidden')) {
+                    filterContent.classList.add('hidden');
+                    filterIcon.classList.remove('rotate-180');
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

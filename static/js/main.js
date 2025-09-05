@@ -794,7 +794,12 @@ function setupNavigationDropdowns() {
         mobileMenuBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            toggleMobileMenu();
+            
+            // Close user dropdown first
+            closeAllDropdowns();
+            
+            // Toggle mobile menu
+            mobileMenu.classList.toggle('hidden');
         });
     }
     
@@ -807,24 +812,28 @@ function setupNavigationDropdowns() {
             e.preventDefault();
             e.stopPropagation();
             
-            const isHidden = userDropdown.classList.contains('hidden');
-            closeAllDropdowns();
-            
-            if (isHidden) {
-                userDropdown.classList.remove('hidden');
+            // Close mobile menu first
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
             }
+            
+            // Toggle user dropdown
+            userDropdown.classList.toggle('hidden');
         });
     }
     
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('#user-dropdown') && !e.target.closest('#user-dropdown-btn')) {
-            closeAllDropdowns();
+        // Close user dropdown if clicking outside
+        if (userDropdown && !userDropdown.classList.contains('hidden')) {
+            if (!e.target.closest('#user-dropdown') && !e.target.closest('#user-dropdown-btn')) {
+                userDropdown.classList.add('hidden');
+            }
         }
         
-        if (!e.target.closest('#mobileMenu') && !e.target.closest('#mobile-menu-btn')) {
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+        // Close mobile menu if clicking outside
+        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+            if (!e.target.closest('#mobileMenu') && !e.target.closest('#mobile-menu-btn')) {
                 mobileMenu.classList.add('hidden');
             }
         }
