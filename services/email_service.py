@@ -17,6 +17,11 @@ class EmailService:
     def send_otp(email, otp):
         """Send OTP to user's email"""
         try:
+            # Ensure mail is configured
+            if not EmailService.configure_mail_from_settings():
+                current_app.logger.error("Email configuration failed")
+                return False
+                
             subject = "SkillBridge Africa - Email Verification Code"
             body = f"""
             Welcome to SkillBridge Africa!
@@ -38,9 +43,10 @@ class EmailService:
             )
             
             mail.send(msg)
+            current_app.logger.info(f"OTP email sent successfully to {email}")
             return True
         except Exception as e:
-            current_app.logger.error(f"Failed to send OTP email: {e}")
+            current_app.logger.error(f"Failed to send OTP email to {email}: {str(e)}")
             return False
     
     @staticmethod
@@ -110,23 +116,26 @@ class EmailService:
     
     @staticmethod
     def configure_mail_from_settings():
-        """Configure mail settings from admin settings if env vars not available"""
+        """Configure mail settings from admin settings"""
         try:
-            if not current_app.config.get('MAIL_USERNAME'):
-                settings = AdminSettings.query.first()
-                if settings and settings.email_username:
-                    current_app.config['MAIL_SERVER'] = settings.email_server or 'smtp.gmail.com'
-                    current_app.config['MAIL_PORT'] = settings.email_port or 587
-                    current_app.config['MAIL_USE_TLS'] = True
-                    current_app.config['MAIL_USE_SSL'] = False
-                    current_app.config['MAIL_USERNAME'] = settings.email_username
-                    current_app.config['MAIL_PASSWORD'] = settings.email_password
-                    current_app.config['MAIL_DEFAULT_SENDER'] = settings.email_username
-                    
-                    # Reinitialize mail with new settings
-                    mail.init_app(current_app)
-                    return True
-            return True  # Return True if already configured
+            settings = AdminSettings.query.first()
+            if settings and settings.email_username and settings.email_password:
+                current_app.config['MAIL_SERVER'] = settings.email_server or 'smtp.gmail.com'
+                current_app.config['MAIL_PORT'] = settings.email_port or 587
+                current_app.config['MAIL_USE_TLS'] = True
+                current_app.config['MAIL_USE_SSL'] = False
+                current_app.config['MAIL_USERNAME'] = settings.email_username
+                current_app.config['MAIL_PASSWORD'] = settings.email_password
+                current_app.config['MAIL_DEFAULT_SENDER'] = settings.email_username
+                
+                # Reinitialize mail with new settings
+                mail.init_app(current_app)
+                return True
+            elif current_app.config.get('MAIL_USERNAME'):
+                return True  # Environment variables are already configured
+            else:
+                current_app.logger.error("No email configuration found in admin settings or environment")
+                return False
         except Exception as e:
             current_app.logger.error(f"Email configuration error: {str(e)}")
             return False

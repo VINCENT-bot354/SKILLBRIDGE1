@@ -137,17 +137,26 @@
         </div>
 
         <!-- Mobile menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t shadow-lg">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="{{ url_for('public.index') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Home</a>
-                <a href="{{ url_for('public.about') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">About</a>
-                <a href="{{ url_for('public.browse') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Browse</a>
+                <a href="{{ url_for('public.index') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors">Home</a>
+                <a href="{{ url_for('public.about') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors">About</a>
+                <a href="{{ url_for('public.browse') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors">Browse</a>
                 {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('public.dashboard') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Dashboard</a>
-                    <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Logout</a>
+                    <a href="{{ url_for('public.dashboard') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors">Dashboard</a>
+                    <a href="{{ url_for('profiles.my_profiles') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors">My Profiles</a>
+                    <a href="{{ url_for('messaging.inbox') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors">
+                        Messages
+                        {% set unread_count = current_user.received_messages.filter_by(is_read=False).count() %}
+                        {% if unread_count > 0 %}
+                            <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-1">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="border-t border-gray-200 my-2"></div>
+                    <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors">Logout</a>
                 {% else %}
-                    <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600">Login</a>
-                    <a href="{{ url_for('auth.signup') }}" class="block px-3 py-2 bg-primary-600 text-white rounded-md">Get Started</a>
+                    <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors">Login</a>
+                    <a href="{{ url_for('auth.signup') }}" class="block px-3 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors mx-3">Get Started</a>
                 {% endif %}
             </div>
         </div>
@@ -267,40 +276,6 @@
     <script src="{{ url_for('static', filename='js/star_rating.js') }}"></script>
     <script src="{{ url_for('static', filename='js/profanity_filter.js') }}"></script>
 
-    {% block extra_js %}
-    <script>
-        // Navigation Dropdown Toggle
-        const userDropdownBtn = document.getElementById('user-dropdown-btn');
-        const userDropdown = document.getElementById('user-dropdown');
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobileMenu');
-
-        if (userDropdownBtn && userDropdown) {
-            userDropdownBtn.addEventListener('click', function() {
-                userDropdown.classList.toggle('hidden');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!userDropdownBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-                    userDropdown.classList.add('hidden');
-                }
-            });
-        }
-
-        if (mobileMenuBtn && mobileMenu) {
-            mobileMenuBtn.addEventListener('click', function() {
-                mobileMenu.classList.toggle('hidden');
-            });
-
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
-        }
-    </script>
-    {% endblock %}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
