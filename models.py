@@ -117,6 +117,11 @@ class Profile(db.Model):
     
     # Relationships
     reviews_received = db.relationship('Review', foreign_keys='Review.reviewed_profile_id', backref='reviewed_profile', lazy='dynamic')
+    views = db.relationship('ProfileView', backref='profile', lazy='dynamic', cascade='all, delete-orphan')
+    
+    @property
+    def total_views(self):
+        return self.views.count()
     
     __table_args__ = (
         db.Index('idx_profile_type_category_location', 'type', 'category', 'location_country', 'location_county'),
@@ -209,6 +214,11 @@ class Subscription(db.Model):
     metadata_json = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
+    # Relationships
+    user = db.relationship('User', backref='subscriptions')
+    profile = db.relationship('Profile', backref='subscriptions')
+    plan = db.relationship('Plan', backref='subscriptions')
+    
     __table_args__ = (
         db.Index('idx_subscription_user_profile_status', 'user_id', 'profile_id', 'status'),
     )
@@ -227,6 +237,11 @@ class Payment(db.Model):
     account_reference = db.Column(db.String(200), nullable=False, unique=True)
     raw_callback_json = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    
+    # Relationships
+    user = db.relationship('User', backref='payments')
+    profile = db.relationship('Profile', backref='payments')
+    plan = db.relationship('Plan', backref='payments')
     
     __table_args__ = (
         db.Index('idx_payment_status_created', 'status', 'created_at'),
@@ -301,6 +316,19 @@ class HomepagePhoto(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     display_order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+class ProfileView(db.Model):
+    __tablename__ = 'profile_views'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    profile_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)
+    viewer_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Null for anonymous views
+    viewer_ip = db.Column(db.String(45), nullable=True)  # Store IP for anonymous tracking
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    __table_args__ = (
+        db.Index('idx_profile_views_profile_date', 'profile_id', 'created_at'),
+    )
 
 class AdminSession(db.Model):
     __tablename__ = 'admin_sessions'

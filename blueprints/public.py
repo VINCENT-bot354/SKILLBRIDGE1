@@ -4,6 +4,7 @@ from sqlalchemy import or_, and_
 from app import db
 from models import Profile, ProfileType, User, HomepagePhoto, UpdatePost, AdminSettings, Review, Message
 import os
+from datetime import datetime
 
 public_bp = Blueprint('public', __name__)
 
@@ -120,6 +121,10 @@ def profile_detail(profile_id):
     """View profile details"""
     profile = Profile.query.get_or_404(profile_id)
 
+    # Increment view count
+    profile.total_views += 1
+    db.session.commit()
+
     # Check if profile is listed (public)
     if not profile.is_listed:
         flash('This profile is not publicly available.', 'error')
@@ -165,13 +170,8 @@ def dashboard():
     # Get user's profiles
     user_profiles = current_user.profiles.all()
 
-    # Get recent messages
-    recent_messages = db.session.query(Message).filter(
-        or_(
-            Message.sender_user_id == current_user.id,
-            Message.recipient_user_id == current_user.id
-        )
-    ).order_by(Message.created_at.desc()).limit(5).all()
+    # Calculate total views across all user profiles
+    total_views = sum(profile.total_views for profile in user_profiles)
 
     # Get unread message count
     unread_count = Message.query.filter_by(
@@ -179,19 +179,26 @@ def dashboard():
         is_read=False
     ).count()
 
-    # Get recent updates for logged-in users
+    # Get recent messages
+    recent_messages = Message.query.filter(
+        (Message.sender_user_id == current_user.id) | 
+        (Message.recipient_user_id == current_user.id)
+    ).order_by(Message.created_at.desc()).limit(5).all()
+
+    # Get recent updates
     recent_updates = UpdatePost.query.filter(
-        UpdatePost.audience.in_(['PUBLIC', 'LOGGED_IN'])
+        UpdatePost.start_at <= datetime.utcnow(),
+        (UpdatePost.end_at.is_(None)) | (UpdatePost.end_at > datetime.utcnow())
     ).order_by(UpdatePost.created_at.desc()).limit(3).all()
 
     settings = AdminSettings.query.first()
 
-    return render_template('dashboard/dashboard.html',
+    return render_template('dashboard/dashboard.html', 
                           user_profiles=user_profiles,
-                          recent_messages=recent_messages,
                           unread_count=unread_count,
+                          recent_messages=recent_messages,
                           recent_updates=recent_updates,
-                          settings=settings)
+                          total_views=total_views)
 
 @public_bp.route('/uploads/<filename>')
 def uploaded_file(filename):

@@ -263,11 +263,45 @@ def delete_profile(profile_id):
 
 @profiles_bp.route('/view/<int:profile_id>')
 def view_profile(profile_id):
+    from models import ProfileView
+    from flask import request
+    
     profile = Profile.query.get_or_404(profile_id)
     
     # Check if profile is listed (public)
     if not profile.is_listed and (not current_user.is_authenticated or current_user.id != profile.user_id):
         flash('This profile is not publicly available.', 'error')
         return redirect(url_for('public.browse'))
+    
+    # Track view (don't count owner viewing their own profile)
+    if not current_user.is_authenticated or current_user.id != profile.user_id:
+        # Check if this user/IP already viewed recently (within 1 hour to prevent spam)
+        from datetime import datetime, timedelta
+        recent_cutoff = datetime.utcnow() - timedelta(hours=1)
+        
+        existing_view = None
+        if current_user.is_authenticated:
+            existing_view = ProfileView.query.filter_by(
+                profile_id=profile_id,
+                viewer_user_id=current_user.id
+            ).filter(ProfileView.created_at > recent_cutoff).first()
+        else:
+            viewer_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR'))
+            existing_view = ProfileView.query.filter_by(
+                profile_id=profile_id,
+                viewer_ip=viewer_ip
+            ).filter(ProfileView.created_at > recent_cutoff).first()
+        
+        # Record new view if not recently viewed
+        if not existing_view:
+            view = ProfileView()
+            view.profile_id = profile_id
+            if current_user.is_authenticated:
+                view.viewer_user_id = current_user.id
+            else:
+                view.viewer_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR'))
+            
+            db.session.add(view)
+            db.session.commit()
     
     return render_template('public/profile_detail.html', profile=profile)

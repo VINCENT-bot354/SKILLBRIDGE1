@@ -11,28 +11,38 @@ billing_bp = Blueprint('billing', __name__)
 @billing_bp.route('/')
 @login_required
 def plans():
+    from models import PlanAudience
+    
     # Get current profile context if provided
     profile_id = request.args.get('profile_id')
     profile = None
     if profile_id:
         profile = Profile.query.filter_by(id=profile_id, user_id=current_user.id).first()
     
-    # Get available plans based on profile type or show all
+    # Get available plans based on profile type
     if profile:
+        # Convert ProfileType to PlanAudience
+        if profile.type.value == 'CLIENT':
+            audience = PlanAudience.CLIENT
+        else:
+            audience = PlanAudience.PROFESSIONAL
+            
         plans = Plan.query.filter_by(
-            audience=profile.type.value,
+            audience=audience,
             is_active=True
-        ).all()
+        ).order_by(Plan.price_kes.asc()).all()
     else:
-        plans = Plan.query.filter_by(is_active=True).all()
+        # If no specific profile, show all active plans
+        plans = Plan.query.filter_by(is_active=True).order_by(Plan.audience, Plan.price_kes.asc()).all()
     
     # Get user's profiles for plan selection
     user_profiles = current_user.profiles.all()
     
-    # Get current subscriptions
-    subscriptions = Subscription.query.filter_by(
-        user_id=current_user.id,
-        status='ACTIVE'
+    # Get current subscriptions with proper joins
+    subscriptions = db.session.query(Subscription).join(Plan).join(Profile).filter(
+        Subscription.user_id == current_user.id,
+        Subscription.status == 'ACTIVE',
+        Subscription.end_at > datetime.utcnow()
     ).all()
     
     return render_template('dashboard/billing.html', 
