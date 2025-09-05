@@ -1,0 +1,248 @@
+You are building a production-ready web app using Flask (Python), PostgreSQL, SQLAlchemy, Alembic, Jinja2 templates, TailwindCSS (via CDN) + a touch of HTMX for snappy UX, and optional Flask-SocketIO for real-time messaging (fallback to regular HTTP polling if websockets unavailable). Target deployment: Render (PostgreSQL + Gunicorn). Development: Replit (must output build & start commands). Use the following spec.
+
+# BRAND & THEME
+- Brand vibe: professional, green, forest, contemporary “pan-African” feel.
+- Use Tailwind with a palette dominated by deep greens and earthy neutrals. Accent subtle gold/amber for CTAs.
+- Cards with rounded-2xl, soft shadows, and gentle hover animations. 
+- Use a lightweight “gears” animation as a page loader (CSS/SVG). Loader shows on initial page load and during in-app navigation (HTMX swapping).
+- Logos are uploadable at any time; do not block app boot if no logo.
+
+# TERMINOLOGY
+- Use “Clients” (seek services) and “Professionals” (offer services). 
+- Support individual AND group/team profiles for Professionals (e.g., a band, catering team). Clients can also be individuals/organizations (e.g., school board).
+
+# KEY FEATURES
+1) **Auth & Roles**
+   - Free signup/login via email+password (Flask-Login, password hashing).
+   - Roles: user (default), admin. Users can act as Client and/or Professional via Profiles (see below).
+   - After login, if user has no profile yet, prompt to create one (Client or Professional).
+
+2) **Profiles (max 5 per account)**
+   - Each user can create up to 5 profiles total (mix any: Client/Professional).
+   - Profile fields:
+     - Common: title/name, avatar/photo (optional), location (Country, County, Sub-County, Town), short bio/description, tags/skills (comma-separated), availability status (Available / Busy / On Vacation), visibility setting (public/listed or private/unlisted).
+     - Professional-only: category (e.g., Plumbing, Electrician, Masonry, Tutor, Photographer, Performer, Catering, etc.), rate type (hourly/daily/fixed/negotiable), optional rate value, certifications (text or links), group/team indicator + team name, years of experience.
+     - Client-only: what they’re looking for (free text), categories needed (multi-select), urgency (Today/This week/This month/Flexible).
+   - Public visitors can browse profile cards and open detail pages BUT all **contact info is hidden** unless the visitor is logged in.
+   - Logged-in users see full details as allowed by their plan/limits/overrides (see Plans).
+
+3) **Discover & Search**
+   - Public & logged-in search page with filters:
+     - Profile type (Client/Professional), category, location, availability, tags.
+   - Card grid: photo/avatar, title, top tags, location, brief bio, badges (New, Featured, Boosted).
+   - Infinite scroll or pagination.
+
+4) **Messaging**
+   - In-app 1:1 messaging between logged-in users; start a chat from any profile card or detail page.
+   - Messages stored in DB with sender_id, recipient_id, optional profile_context_id, content, timestamps, read/unread.
+   - Admin can also message any user (broadcast & 1:1). Admin messages appear in inbox and/or as banners (see Admin).
+   - If SocketIO is complex on Replit, implement HTTP long-poll or periodic fetch; abstract message service so either works.
+
+5) **Admin Panel**
+   - Secure /admin with role=admin guard.
+   - Admin can:
+     - Post **Updates** (site-wide announcements, job leads, events, opportunities). Rich-text editor; updates appear on public pages and logged-in dashboards.
+     - Manage **Banners** (hero/banner on public pages & targeted in-app banners). Banners can include images, CTA buttons, and schedule/targets (e.g., only show to non-subscribed Professionals).
+     - Toggle **Media Uploads** (photos/videos) globally with a single switch each:
+       - When disabled: replace upload UI with a tasteful “Coming Soon” badge/notice at those components.
+       - When enabled: allow image/video upload to a pluggable storage provider.
+       - NOTE: Implement storage interface; default to local dev folder; include a clear TODO to switch to S3/Cloudinary when ready for production. Do not break if disabled.
+     - Manage **Users & Profiles** (view, verify, feature/boost flags, ban/unban, reset password, adjust counters).
+     - Create & manage **Plans** for Clients and Professionals (see Plans).
+     - **Override Gatekeeping**:
+       - Global override: temporarily lift all paywalls/limits for everyone.
+       - Individual override: lift for a specific user or specific profile(s).
+     - Manage **M-Pesa Daraja** settings: business shortcode, passkey, callback base URL, company name, environment (sandbox/live).
+     - See payments list, plan assignments, expiries.
+     - Post **Reminders** (e.g., “Subscribe to increase your visibility!”) as inbox messages and/or as targeted banners for non-subscribed or expiring users.
+
+6) **Plans, Payments, and Gatekeeping**
+   - Two plan families: **Client Plans** and **Professional Plans**. Each plan has:
+     - name, description, price (KES), duration (days), features/limits (JSON): e.g., 
+       - Professionals: max daily profile appearances, boosted/featured flag, contact unlocks/day, messaging limits, media upload allowed/not, visibility priority level.
+       - Clients: daily contact unlocks, number of professional profiles they can view fully per day/week, ability to post multi-need requests, featured request badge.
+   - **M-Pesa Express (Daraja STK Push)** integration:
+     - Plans page shows available plans for the **current active profile** (if user has multiple profiles).
+     - Flow: choose plan → enter M-Pesa phone number → STK push via Daraja credentials from Admin Settings.
+     - On callback: verify result, record transaction, attach plan to the profile that initiated purchase; handle multiple users safely using a unique `AccountReference` (include user_id and profile_id encoded) and `TransactionDesc` that identifies plan type.
+     - Show payment status in UI and send in-app message on success/failure.
+   - **Gatekeeping behavior**:
+     - By default, enforce limits based on plan on the server-side for:
+       - Viewing full contacts, initiating messages, boosted placement, daily unlock counts, etc.
+     - Respect Admin overrides (global or user-level) to lift limits.
+     - At app start (MVP), set global override ON in Admin to keep the platform free, but keep all paywall code active and testable.
+
+7) **Updates & Public Content**
+   - Public pages: Home, About, Browse (profiles), Updates/News, Contact.
+   - Logged-in pages: Dashboard, My Profiles (list/create/edit up to 5), Discover (search), People’s Profiles (browse), Messages (inbox/thread), Updates, Billing/Plans, Settings.
+   - **Home Page**: Hero banner (admin-configurable), call-to-action buttons (“Find Professionals”, “Find Clients”), featured new users (Admin can mark new/featured), latest updates ticker, categories carousel (cards like Plumbing, Electrician, Masonry, Tutor, Performers, Catering, etc.).
+   - **About Page**: mission, trust/safety, how it works (3 steps), and an Africa-inspired green visual motif.
+   - **Loader**: animated gear loader (CSS/SVG) overlay while pages/requests load.
+
+8) **“New User” Celebration**
+   - When Admin flags a user as “New User,” show a tasteful “New” ribbon/badge on their profile cards (site-wide) for X days configurable in Admin settings.
+
+9) **Security & Privacy**
+   - CSRF protection, session protection, server-side authorization checks for contact visibility and messaging.
+   - Do not expose email/phone on public pages; only show to logged-in users who have the right plan/override.
+   - Environment variables for secrets; never hardcode creds.
+
+10) **Scalability & Clean Architecture**
+   - Blueprints by domain: auth, profiles, discover, messages, updates, billing, admin, media.
+   - Services layer (payments, storage, messaging adapter).
+   - Reusable components for cards, banners, modals, pagination, filters.
+   - Alembic migrations for DB schema evolution.
+   - Pagination & indexes for heavy tables.
+
+# DATA MODEL (SQLAlchemy ORM – adjust as needed)
+- User(id, email, password_hash, role, created_at, is_active)
+- Profile(id, user_id(FK), type(Enum: CLIENT/PROFESSIONAL), title, avatar_url, location_country, location_county, location_sub_county, location_town, bio, tags, availability(Enum), category, rate_type, rate_value, certifications, team_name, years_experience, is_group, is_listed, is_new_user_flag, created_at)
+- Message(id, sender_user_id, recipient_user_id, profile_context_id (nullable), content, is_read, created_at)
+- UpdatePost(id, title, body_html, banner_image_url, is_pinned, audience(Enum: PUBLIC/LOGGED_IN/PRO_ONLY/CLIENT_ONLY/EXPIRED_USERS), start_at, end_at, created_at)
+- Banner(id, title, body_html, image_url, cta_text, cta_href, target_rule_json, start_at, end_at, is_active)
+- Plan(id, name, audience(Enum: CLIENT/PROFESSIONAL), price_kes, duration_days, features_json, is_active)
+- Subscription(id, user_id, profile_id, plan_id, status(Enum: ACTIVE/EXPIRED/PENDING), start_at, end_at, metadata_json)
+- Payment(id, user_id, profile_id, plan_id, mpesa_phone, amount_kes, status(Enum: PENDING/SUCCESS/FAILED), provider_ref, account_reference, raw_callback_json, created_at)
+- AdminSettings(id=1, media_photos_enabled(bool), media_videos_enabled(bool), global_override_enabled(bool), mpesa_shortcode, mpesa_passkey, mpesa_company_name, mpesa_env(Enum: SANDBOX/LIVE), callback_base_url)
+- MediaAsset(id, user_id, profile_id, type(Enum: IMAGE/VIDEO), url, storage_provider(Enum: LOCAL/S3/CLOUDINARY), created_at)
+- FeatureFlag(id, key, value_json, is_active)
+
+Add helpful DB indexes:
+- idx_profile_type_category_location
+- idx_message_recipient_created
+- idx_subscription_user_profile_status
+- idx_payment_status_created
+
+# BEHAVIORAL RULES
+- Max 5 profiles per user; enforce on server (return a friendly error + link to manage).
+- Public can browse profiles but cannot see contact details (email/phone) or start messages; show login/signup CTA instead.
+- Logged-in + within plan/override: show contact block and “Message” button.
+- If Admin disables photos/videos globally, all upload UI shows a “Coming Soon” component (no error).
+- Admin broadcast: send an UpdatePost and also optional user Inbox messages.
+
+# PAGES & ROUTES (examples; use blueprints)
+Public:
+- GET / -> Home (hero banner, categories carousel, featured new users, latest updates)
+- GET /about
+- GET /browse?type=CLIENT|PROFESSIONAL&category=&location=&q=
+- GET /updates
+- GET /profile/<id> (hide contacts unless permitted)
+- GET /contact
+
+Auth:
+- GET/POST /signup
+- GET/POST /login
+- POST /logout
+
+Logged-in:
+- GET /dashboard (summaries: profiles, plan status, messages preview, updates)
+- GET /profiles (list up to 5); GET/POST /profiles/new; GET/POST /profiles/<id>/edit
+- GET /discover (advanced filters)
+- GET /messages; GET /messages/<user_id> (thread); POST /messages/send
+- GET /updates (logged-in view)
+- GET /billing (list plans relevant to currently selected profile); POST /billing/start-payment (Daraja STK)
+- GET /settings (account, notifications)
+
+Admin (/admin):
+- Dashboard with stats (users, profiles, active subs, payments).
+- Users: list/search, view, message (1:1), toggle flags (new user, featured, ban).
+- Profiles: verify/feature/boost.
+- Updates: CRUD.
+- Banners: CRUD with targeting rules (JSON-based: role, plan status, audience).
+- Plans: CRUD (Client/Pro), features JSON editor (e.g., limits: {daily_contact_unlocks: 5, featured: true})
+- Settings: media toggles, overrides, Daraja creds, callback base URL, company name.
+- Payments: list, view raw callbacks, mark disputes, refund notes (no gateway refund logic).
+- Reminders: compose → as inbox message and/or banner to segments (non-subscribed, expiring this week).
+
+# M-PESA (DARAJA) INTEGRATION REQUIREMENTS
+- Configurable via AdminSettings (shortcode, passkey, callback_base_url, env).
+- POST /billing/start-payment:
+  - Input: profile_id, plan_id, mpesa_phone
+  - Create Payment row with status=PENDING; call STK Push; set `account_reference` as `u{user_id}-p{profile_id}-pl{plan_id}-{timestamp}`.
+- Callback endpoint: POST /billing/callback/mpesa
+  - Verify signature/status; update Payment row; if SUCCESS, create/extend Subscription for that profile/plan; set status=SUCCESS and fill provider_ref.
+  - Send in-app message to the user on success/failure.
+- Handle multiple users safely by using unique account_reference and mapping back to profile/plan.
+
+# CONTACT VISIBILITY & LIMITS
+- For Professionals: plans govern priority in search (featured/boosted), contact visibility to Clients, and messaging quotas.
+- For Clients: plans govern how many Professional contacts they can unlock per day/week and ability to message first.
+- Global and per-user overrides in Admin bypass these limits.
+
+# MEDIA UPLOAD STRATEGY
+- Implement a StorageService interface with LocalStorage (dev) and a stub S3/Cloudinary adapter (TODO for production).
+- If photos/videos disabled, show a “Coming Soon” card wherever upload UI would appear. No errors thrown.
+- If enabled: allow image upload (PNG/JPG) and video upload (MP4 up to a moderate size); store path/URL in MediaAsset.
+
+# “NEW USER” BADGE
+- If user flagged as New by Admin, show a “New” ribbon on their profile card for N days (configurable in Admin Settings or use Post created_at + period).
+
+# SEED DATA
+- Seed a few categories (Plumbing, Electrician, Masonry, Tutor, Photographer, Performer, Catering).
+- Create 1 admin user and several sample users with mixed Client/Professional profiles.
+- Create 2–3 sample plans each for Clients and Professionals with realistic Kenya pricing (KES):
+  - Pro Starter: KES 300 / 14 days – 3 daily contact unlocks, not featured.
+  - Pro Growth: KES 800 / 30 days – 10 daily contact unlocks, occasional boost.
+  - Pro Prime: KES 2000 / 30 days – priority placement, unlimited messaging, media uploads.
+  - Client Lite: KES 200 / 14 days – view 5 full profiles per day.
+  - Client Plus: KES 600 / 30 days – view 20 full profiles/day, message-first enabled.
+
+# TECH IMPLEMENTATION DETAILS
+- Python: Flask, Flask-Login, Flask-WTF/CSRF, SQLAlchemy, Alembic, Psycopg2-binary, Gunicorn, python-dotenv.
+- Optional: Flask-SocketIO (with fallback); otherwise implement polling every ~5–10s for messaging.
+- Templates: Jinja2 + Tailwind CDN; use partials for header, footer, nav, cards, banners, loader.
+- Use environment variables:
+  - DATABASE_URL (Postgres full URL)
+  - SECRET_KEY
+  - MPESA_SHORTCODE
+  - MPESA_PASSKEY
+  - MPESA_COMPANY_NAME
+  - MPESA_ENV (sandbox|live)
+  - CALLBACK_BASE_URL (e.g., https://your-render-domain)
+- Provide `.env.example` with the above keys and safe placeholders.
+
+# RENDER & REPLIT SETUP
+- Provide a `requirements.txt`.
+- Provide a `wsgi.py` exposing `app` for Gunicorn.
+- **Render build**: `pip install -r requirements.txt && alembic upgrade head`
+- **Render start**: `gunicorn wsgi:app --bind 0.0.0.0:$PORT`
+- **Replit build**: `pip install -r requirements.txt && alembic upgrade head`
+- **Replit start**: `python -m flask run --host=0.0.0.0 --port=3000`
+  - Ensure `FLASK_APP=app.py` (or entrypoint) and `FLASK_ENV=development` in `.replit` or Replit secrets.
+- Add a short README with local dev instructions (how to set DATABASE_URL to a local Postgres or a Render external URL).
+
+# URL-ONLY DB SUPPORT
+- Everywhere DB connection is needed, read from `DATABASE_URL` (connection string), not separate host/user fields.
+
+# TESTS & VALIDATION
+- Basic unit tests for:
+  - Creating up to 5 profiles per user (6th should fail).
+  - Contact visibility logic (public vs logged-in vs plan vs override).
+  - Payment callback mapping to correct profile/plan.
+  - Media toggle behavior.
+  - Admin override global & per-user.
+
+# DELIVERABLES
+- Complete Flask project with:
+  - app structure (blueprints as above)
+  - models, migrations
+  - templates (pages listed)
+  - static assets (loader, minimal icons)
+  - admin UI
+  - messaging (basic working)
+  - plan selection + Daraja STK stub integration (fake gateway in dev + real structure ready)
+  - seed script
+  - .env.example, README.md
+- The UI should not look empty: seed visible profiles, banners, and updates so the home, browse, and dashboard feel alive.
+
+Please generate the full codebase, including:
+- Folder structure
+- All Flask blueprints
+- SQLAlchemy models + Alembic migrations
+- Jinja2 templates with Tailwind styling (green forest African aesthetic)
+- Minimal JS/HTMX for loader and messaging refresh
+- Admin panel pages and forms
+- Payment start + callback endpoints with safe stubs for dev
+- Seed script to populate demo data
+- requirements.txt, wsgi.py, README.md
+- Clear instructions for Render and Replit build/start commands as specified.
