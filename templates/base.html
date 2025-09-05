@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SkillBridge Africa{% endblock %}</title>
-    
+
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
+
     <!-- Tailwind Config -->
     <script>
         tailwind.config = {
@@ -61,13 +61,13 @@
             }
         }
     </script>
-    
+
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Loader -->
     {% include 'components/loader.html' %}
-    
+
     <!-- Navigation -->
     <nav class="bg-white shadow-lg border-b-4 border-primary-600">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,13 +85,13 @@
                         <span class="text-xl font-bold text-primary-800">SkillBridge Africa</span>
                     </a>
                 </div>
-                
+
                 <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-6">
                     <a href="{{ url_for('public.index') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">Home</a>
                     <a href="{{ url_for('public.about') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">About</a>
                     <a href="{{ url_for('public.browse') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">Browse</a>
-                    
+
                     {% if current_user.is_authenticated %}
                         <a href="{{ url_for('public.dashboard') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">Dashboard</a>
                         <a href="{{ url_for('profiles.my_profiles') }}" class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">My Profiles</a>
@@ -102,19 +102,19 @@
                                 <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-1">{{ unread_count }}</span>
                             {% endif %}
                         </a>
-                        
+
                         <!-- Admin Link (only if admin session exists) -->
                         {% if session.get('admin_token') %}
                             <a href="{{ url_for('admin.dashboard') }}" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition">Admin</a>
                         {% endif %}
-                        
+
                         <div class="relative">
-                            <button onclick="toggleDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">
+                            <button id="user-dropdown-btn" class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md transition">
                                 <i class="fas fa-user"></i>
                                 <span>{{ current_user.email.split('@')[0] }}</span>
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                                 <a href="{{ url_for('profiles.my_profiles') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Profiles</a>
                                 <a href="{{ url_for('billing.plans') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Billing</a>
                                 <hr class="my-1">
@@ -126,16 +126,16 @@
                         <a href="{{ url_for('auth.signup') }}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">Get Started</a>
                     {% endif %}
                 </div>
-                
+
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center">
-                    <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-primary-600">
+                    <button id="mobile-menu-btn" class="text-gray-700 hover:text-primary-600">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
         </div>
-        
+
         <!-- Mobile menu -->
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
             <div class="px-2 pt-2 pb-3 space-y-1">
@@ -199,7 +199,7 @@
                         <a href="#" class="text-primary-200 hover:text-white transition"><i class="fab fa-instagram text-xl"></i></a>
                     </div>
                 </div>
-                
+
                 <div>
                     <h3 class="font-semibold mb-4">Quick Links</h3>
                     <ul class="space-y-2 text-primary-200">
@@ -209,7 +209,7 @@
                         <li><a href="#" class="hover:text-white transition">Help Center</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h3 class="font-semibold mb-4">Categories</h3>
                     <ul class="space-y-2 text-primary-200">
@@ -220,7 +220,7 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="border-t border-primary-700 mt-8 pt-8 text-center text-primary-200">
                 <p>&copy; {{ current_year }} SkillBridge Africa. All rights reserved.</p>
             </div>
@@ -231,7 +231,41 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/star_rating.js') }}"></script>
     <script src="{{ url_for('static', filename='js/profanity_filter.js') }}"></script>
-    
-    {% block extra_js %}{% endblock %}
+
+    {% block extra_js %}
+    <script>
+        // Navigation Dropdown Toggle
+        const userDropdownBtn = document.getElementById('user-dropdown-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        if (userDropdownBtn && userDropdown) {
+            userDropdownBtn.addEventListener('click', function() {
+                userDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!userDropdownBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+    {% endblock %}
 </body>
 </html>

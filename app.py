@@ -66,6 +66,14 @@ def create_app():
         from datetime import datetime
         return {'current_year': datetime.now().year}
     
+    # Add context processor for admin settings
+    @app.context_processor
+    def inject_admin_settings():
+        from models import AdminSettings
+        def get_admin_settings():
+            return AdminSettings.query.first()
+        return {'get_admin_settings': get_admin_settings}
+    
     # Register blueprints
     from blueprints.public import public_bp
     from blueprints.auth import auth_bp

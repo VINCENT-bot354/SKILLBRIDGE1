@@ -31,6 +31,9 @@ function initializeApp() {
     
     // Initialize smooth scrolling
     initializeSmoothScroll();
+    
+    // Initialize filter toggle
+    initializeFilterToggle();
 }
 
 /**
@@ -47,14 +50,17 @@ function setupEventListeners() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeAllModals();
+            closeAllDropdowns();
         }
     });
     
     // Handle window resize
     window.addEventListener('resize', debounce(handleResize, 250));
     
-    // Handle navigation events
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    // Setup navigation dropdowns
+    setupNavigationDropdowns();
+    
+    // Handle navigation events - removed beforeunload handler
 }
 
 /**
@@ -603,27 +609,7 @@ function centerModal(modal) {
     }
 }
 
-/**
- * Handle before unload
- */
-function handleBeforeUnload(e) {
-    // Check for unsaved changes in forms
-    const forms = document.querySelectorAll('form');
-    let hasUnsavedChanges = false;
-    
-    forms.forEach(form => {
-        const formData = new FormData(form);
-        if (formData.entries().next().value) {
-            hasUnsavedChanges = true;
-        }
-    });
-    
-    if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-        return e.returnValue;
-    }
-}
+// Removed handleBeforeUnload function to eliminate leave site warning
 
 /**
  * Utility Functions
@@ -742,6 +728,117 @@ function createScrollToTopButton() {
     button.onclick = scrollToTop;
     
     document.body.appendChild(button);
+}
+
+/**
+ * Initialize filter toggle functionality
+ */
+function initializeFilterToggle() {
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterContent = document.getElementById('filter-content');
+    const filterIcon = document.getElementById('filter-icon');
+    
+    if (filterToggle && filterContent && filterIcon) {
+        filterToggle.addEventListener('click', function() {
+            const isHidden = filterContent.classList.contains('hidden');
+            
+            if (isHidden) {
+                filterContent.classList.remove('hidden');
+                filterIcon.classList.add('rotate-180');
+                
+                // Smooth scroll animation
+                filterContent.style.maxHeight = '0px';
+                filterContent.style.overflow = 'hidden';
+                filterContent.style.transition = 'max-height 0.3s ease-out';
+                
+                setTimeout(() => {
+                    filterContent.style.maxHeight = filterContent.scrollHeight + 'px';
+                }, 10);
+                
+                setTimeout(() => {
+                    filterContent.style.maxHeight = '';
+                    filterContent.style.overflow = '';
+                    filterContent.style.transition = '';
+                }, 300);
+            } else {
+                filterContent.style.maxHeight = filterContent.scrollHeight + 'px';
+                filterContent.style.overflow = 'hidden';
+                filterContent.style.transition = 'max-height 0.3s ease-out';
+                
+                setTimeout(() => {
+                    filterContent.style.maxHeight = '0px';
+                }, 10);
+                
+                setTimeout(() => {
+                    filterContent.classList.add('hidden');
+                    filterContent.style.maxHeight = '';
+                    filterContent.style.overflow = '';
+                    filterContent.style.transition = '';
+                }, 300);
+                
+                filterIcon.classList.remove('rotate-180');
+            }
+        });
+    }
+}
+
+/**
+ * Setup navigation dropdowns
+ */
+function setupNavigationDropdowns() {
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMobileMenu();
+        });
+    }
+    
+    // User dropdown toggle
+    const userDropdownBtn = document.getElementById('user-dropdown-btn');
+    const userDropdown = document.getElementById('user-dropdown');
+    
+    if (userDropdownBtn && userDropdown) {
+        userDropdownBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isHidden = userDropdown.classList.contains('hidden');
+            closeAllDropdowns();
+            
+            if (isHidden) {
+                userDropdown.classList.remove('hidden');
+            }
+        });
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#user-dropdown') && !e.target.closest('#user-dropdown-btn')) {
+            closeAllDropdowns();
+        }
+        
+        if (!e.target.closest('#mobileMenu') && !e.target.closest('#mobile-menu-btn')) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        }
+    });
+}
+
+/**
+ * Toggle mobile menu
+ */
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenu) {
+        mobileMenu.classList.toggle('hidden');
+    }
 }
 
 // Export functions for use in other files

@@ -44,46 +44,52 @@ def login():
         return redirect(url_for('admin.dashboard'))
     
     if request.method == 'POST':
-        password = request.form.get('password', '')
+        password = request.form.get('password', '').strip()
         
         if not password:
             flash('Password is required.', 'error')
             return render_template('admin/login.html')
         
-        settings = AdminSettings.query.first()
-        
-        # Check if custom admin password is set
-        if settings and settings.admin_password_hash:
-            if check_password_hash(settings.admin_password_hash, password):
-                # Create admin session
-                token = str(uuid.uuid4())
-                admin_session = AdminSession()
-                admin_session.session_token = token
-                admin_session.expires_at = datetime.utcnow() + timedelta(minutes=30)
-                db.session.add(admin_session)
-                db.session.commit()
-                
-                session['admin_token'] = token
-                flash('Admin login successful!', 'success')
-                return redirect(url_for('admin.dashboard'))
+        try:
+            settings = AdminSettings.query.first()
+            
+            # Check if custom admin password is set
+            if settings and settings.admin_password_hash:
+                if check_password_hash(settings.admin_password_hash, password):
+                    # Create admin session
+                    token = str(uuid.uuid4())
+                    admin_session = AdminSession()
+                    admin_session.session_token = token
+                    admin_session.expires_at = datetime.utcnow() + timedelta(hours=2)  # Extended session
+                    db.session.add(admin_session)
+                    db.session.commit()
+                    
+                    session['admin_token'] = token
+                    session.permanent = True
+                    flash('Admin login successful!', 'success')
+                    return redirect(url_for('admin.dashboard'))
+                else:
+                    flash('Invalid admin password.', 'error')
             else:
-                flash('Invalid password.', 'error')
-        else:
-            # Use default password
-            if password == 'SKILLBRIDGE':
-                # Create admin session
-                token = str(uuid.uuid4())
-                admin_session = AdminSession()
-                admin_session.session_token = token
-                admin_session.expires_at = datetime.utcnow() + timedelta(minutes=30)
-                db.session.add(admin_session)
-                db.session.commit()
-                
-                session['admin_token'] = token
-                flash('Admin login successful! Please change the default password.', 'warning')
-                return redirect(url_for('admin.dashboard'))
-            else:
-                flash('Invalid password.', 'error')
+                # Use default password
+                if password == 'SKILLBRIDGE':
+                    # Create admin session
+                    token = str(uuid.uuid4())
+                    admin_session = AdminSession()
+                    admin_session.session_token = token
+                    admin_session.expires_at = datetime.utcnow() + timedelta(hours=2)
+                    db.session.add(admin_session)
+                    db.session.commit()
+                    
+                    session['admin_token'] = token
+                    session.permanent = True
+                    flash('Admin login successful! Please change the default password.', 'warning')
+                    return redirect(url_for('admin.dashboard'))
+                else:
+                    flash('Invalid admin password. Default password is "SKILLBRIDGE".', 'error')
+        except Exception as e:
+            current_app.logger.error(f"Admin login error: {str(e)}")
+            flash('Login system error. Please try again.', 'error')
     
     return render_template('admin/login.html')
 
@@ -203,6 +209,11 @@ def settings():
         settings.email_port = int(request.form.get('email_port', 587))
         settings.email_username = request.form.get('email_username', '').strip()
         settings.email_password = request.form.get('email_password', '').strip()
+        
+        # Customer support settings
+        settings.support_whatsapp = request.form.get('support_whatsapp', '').strip()
+        settings.support_phone = request.form.get('support_phone', '').strip()
+        settings.support_email = request.form.get('support_email', '').strip()
         
         # Admin password
         new_password = request.form.get('admin_password', '').strip()
