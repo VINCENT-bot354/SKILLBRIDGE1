@@ -205,43 +205,20 @@
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterToggle = document.getElementById('filter-toggle');
-        const filterContent = document.getElementById('filter-content');
-        const filterIcon = document.getElementById('filter-icon');
+document.addEventListener('DOMContentLoaded', function() {
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterContent = document.getElementById('filter-content');
+    const filterIcon = document.getElementById('filter-icon');
 
-        if (filterToggle && filterContent && filterIcon) {
-            filterToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation(); // stops bubbling up to document
-
-                const isHidden = filterContent.classList.contains('hidden');
-                if (isHidden) {
-                    filterContent.classList.remove('hidden');
-                    filterIcon.classList.add('rotate-180');
-                } else {
-                    filterContent.classList.add('hidden');
-                    filterIcon.classList.remove('rotate-180');
-                }
-            });
-
-            // ✅ prevent clicks inside the filter from closing it immediately
-            filterContent.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                const isClickInsideFilter =
-                    filterToggle.contains(event.target) ||
-                    filterContent.contains(event.target);
-                if (!isClickInsideFilter && !filterContent.classList.contains('hidden')) {
-                    filterContent.classList.add('hidden');
-                    filterIcon.classList.remove('rotate-180');
-                }
-            });
-        }
-    });
+    if (filterToggle && filterContent && filterIcon) {
+        filterToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            filterContent.classList.toggle('hidden');
+            filterIcon.classList.toggle('rotate-180');
+        });
+    }
+});
 </script>
+
 
 {% endblock %}
