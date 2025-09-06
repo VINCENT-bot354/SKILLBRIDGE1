@@ -211,14 +211,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterIcon = document.getElementById('filter-icon');
 
     if (filterToggle && filterContent && filterIcon) {
+
+        // Toggle filter open/close
         filterToggle.addEventListener('click', function(e) {
-            e.preventDefault();
+            e.stopPropagation(); // Prevent triggering document click
             filterContent.classList.toggle('hidden');
             filterIcon.classList.toggle('rotate-180');
+        });
+
+        // Close filter when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!filterContent.contains(e.target) && !filterToggle.contains(e.target)) {
+                if (!filterContent.classList.contains('hidden')) {
+                    filterContent.classList.add('hidden');
+                    filterIcon.classList.remove('rotate-180');
+                }
+            }
         });
     }
 });
 </script>
+
 
 
 {% endblock %}
