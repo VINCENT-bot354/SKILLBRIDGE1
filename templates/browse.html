@@ -292,61 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const filterToggle = document.getElementById('filter-toggle');
-    const filterContent = document.getElementById('filter-content');
-    const filterIcon = document.getElementById('filter-icon');
 
-    if (!filterToggle || !filterContent || !filterIcon) return;
-
-    // Remove any pre-existing event listeners by cloning
-    const newFilterToggle = filterToggle.cloneNode(true);
-    filterToggle.parentNode.replaceChild(newFilterToggle, filterToggle);
-
-    const newFilterContent = filterContent.cloneNode(true);
-    filterContent.parentNode.replaceChild(newFilterContent, filterContent);
-
-    // Update references
-    const toggle = newFilterToggle;
-    const content = newFilterContent;
-    const icon = document.getElementById('filter-icon');
-
-    // Open filter
-    function openFilter() {
-        content.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-    }
-
-    // Close filter
-    function closeFilter() {
-        content.classList.add('hidden');
-        icon.classList.remove('rotate-180');
-    }
-
-    // Toggle filter on click
-    toggle.addEventListener('click', function(e) {
-        e.stopPropagation(); // prevent global listeners
-        if (content.classList.contains('hidden')) {
-            openFilter();
-        } else {
-            closeFilter();
-        }
-    });
-
-    // Prevent closing when clicking inside content
-    content.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
-
-    // Close filter when clicking anywhere else
-    document.addEventListener('click', function() {
-        if (!content.classList.contains('hidden')) {
-            closeFilter();
-        }
-    });
-});
-</script>
 
 
 
