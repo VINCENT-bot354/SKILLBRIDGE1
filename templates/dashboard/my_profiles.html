@@ -201,3 +201,41 @@
     </div>
 </section>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    const allDropdowns = document.querySelectorAll('[id$="-dropdown"]');
+
+    // Close all other dropdowns
+    allDropdowns.forEach(d => {
+        if (d.id !== dropdownId) {
+            d.classList.add('hidden');
+        }
+    });
+
+    // Toggle current dropdown
+    dropdown.classList.toggle('hidden');
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    const allDropdowns = document.querySelectorAll('[id$="-dropdown"]');
+    const allButtons = document.querySelectorAll('[onclick*="toggleDropdown"]');
+
+    let clickedOnButton = false;
+    allButtons.forEach(button => {
+        if (button.contains(event.target)) {
+            clickedOnButton = true;
+        }
+    });
+
+    if (!clickedOnButton) {
+        allDropdowns.forEach(dropdown => {
+            dropdown.classList.add('hidden');
+        });
+    }
+});
+</script>
+{% endblock %}

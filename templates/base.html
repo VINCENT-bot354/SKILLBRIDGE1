@@ -244,7 +244,7 @@
                             WhatsApp: {{ settings.support_whatsapp }}
                         </a>
                         {% endif %}
-                        
+
                         {% if settings.support_phone %}
                         <a href="tel:{{ settings.support_phone }}" 
                            class="flex items-center hover:text-white transition">
@@ -252,7 +252,7 @@
                             Phone: {{ settings.support_phone }}
                         </a>
                         {% endif %}
-                        
+
                         {% if settings.support_email %}
                         <a href="mailto:{{ settings.support_email }}" 
                            class="flex items-center hover:text-white transition">
@@ -275,7 +275,6 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/star_rating.js') }}"></script>
     <script src="{{ url_for('static', filename='js/profanity_filter.js') }}"></script>
-
     {% block extra_js %}{% endblock %}
 </body>
 </html>

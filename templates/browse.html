@@ -16,7 +16,20 @@
 <!-- Filters -->
 <section class="bg-white shadow-md sticky top-0 z-40 border-b">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <form method="GET" class="space-y-4 lg:space-y-0 lg:flex lg:items-center lg:space-x-4">
+        <!-- Filter Toggle Button -->
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Browse Profiles</h2>
+            <button type="button" id="filter-toggle" 
+                    class="flex items-center space-x-2 text-primary-600 hover:text-primary-700 font-medium">
+                <i class="fas fa-filter"></i>
+                <span>Filters</span>
+                <i class="fas fa-chevron-down transition-transform duration-200" id="filter-icon"></i>
+            </button>
+        </div>
+        
+        <!-- Filter Content -->
+        <div id="filter-content" class="hidden">
+            <form method="GET" class="space-y-4 lg:space-y-0 lg:flex lg:items-center lg:space-x-4">
             <!-- Search -->
             <div class="flex-1">
                 <input type="text" name="q" value="{{ current_filters.q }}"
@@ -72,9 +85,9 @@
                     <i class="fas fa-search mr-2"></i>Search
                 </button>
             </div>
-        </form>
+            </form>
 
-        <!-- Active Filters Display -->
+            <!-- Active Filters Display -->
         {% if current_filters.q or current_filters.type or current_filters.category or current_filters.location or current_filters.availability %}
         <div class="mt-4 flex flex-wrap gap-2">
             <span class="text-sm text-gray-600">Active filters:</span>
@@ -97,8 +110,9 @@
                 </span>
             {% endif %}
             <a href="{{ url_for('public.browse') }}" class="text-sm text-red-600 hover:text-red-800">Clear all filters</a>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 </section>
 

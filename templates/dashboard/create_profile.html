@@ -32,7 +32,7 @@
                             </div>
                         </div>
                     </label>
-                    
+
                     <label class="cursor-pointer">
                         <input type="radio" name="type" value="CLIENT" required 
                                class="sr-only peer" onchange="toggleProfileFields()">
@@ -60,7 +60,7 @@
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                placeholder="e.g., Expert Plumber, Web Developer, Looking for Catering Services">
                     </div>
-                    
+
                     <!-- Avatar Upload -->
                     <div>
                         <label for="avatar" class="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
@@ -68,14 +68,14 @@
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         <p class="text-xs text-gray-500 mt-1">Optional: Upload a professional photo (JPG, PNG, GIF)</p>
                     </div>
-                    
+
                     <!-- Location -->
                     <div>
                         <label for="location_country" class="block text-sm font-medium text-gray-700 mb-2">Country *</label>
                         <input type="text" id="location_country" name="location_country" required value="Kenya"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
-                    
+
                     <div>
                         <label for="location_county" class="block text-sm font-medium text-gray-700 mb-2">County *</label>
                         <select id="location_county" name="location_county" required
@@ -86,7 +86,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
+
                     <div>
                         <label for="location_town" class="block text-sm font-medium text-gray-700 mb-2">Town/City *</label>
                         <input type="text" id="location_town" name="location_town" required
@@ -94,7 +94,7 @@
                                placeholder="e.g., Nairobi, Mombasa, Nakuru">
                     </div>
                 </div>
-                
+
                 <!-- Bio -->
                 <div class="mt-6">
                     <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
@@ -103,7 +103,7 @@
                               placeholder="Describe your skills, experience, or what you're looking for..."></textarea>
                     <p class="text-xs text-gray-500 mt-1">Maximum 1000 characters</p>
                 </div>
-                
+
                 <!-- Tags -->
                 <div class="mt-6">
                     <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">Skills/Tags</label>
@@ -111,6 +111,20 @@
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                            placeholder="e.g., plumbing, repairs, installation, emergency services">
                     <p class="text-xs text-gray-500 mt-1">Separate tags with commas</p>
+                </div>
+
+                <!-- Additional Photos & Videos -->
+                <div class="mb-6" id="media-section">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Additional Photos & Videos
+                    </label>
+                    <div id="media-upload-area">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <i class="fas fa-images text-gray-400 text-3xl mb-3"></i>
+                            <p class="text-gray-600 mb-2">Upload photos and videos to showcase your work</p>
+                            <p class="text-gray-500 text-sm">Coming Soon - Feature will be available based on admin settings</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -129,14 +143,14 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
+
                     <!-- Experience -->
                     <div>
                         <label for="years_experience" class="block text-sm font-medium text-gray-700 mb-2">Years of Experience</label>
                         <input type="number" id="years_experience" name="years_experience" min="0" max="50"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
-                    
+
                     <!-- Rate Type -->
                     <div>
                         <label for="rate_type" class="block text-sm font-medium text-gray-700 mb-2">Rate Type</label>
@@ -149,7 +163,7 @@
                             <option value="negotiable">Negotiable</option>
                         </select>
                     </div>
-                    
+
                     <!-- Rate Value -->
                     <div>
                         <label for="rate_value" class="block text-sm font-medium text-gray-700 mb-2">Rate (KES)</label>
@@ -158,7 +172,7 @@
                                placeholder="e.g., 1500">
                         <p class="text-xs text-gray-500 mt-1">Optional: Leave blank if negotiable</p>
                     </div>
-                    
+
                     <!-- Team/Group -->
                     <div class="md:col-span-2">
                         <div class="flex items-center mb-4">
@@ -175,7 +189,7 @@
                                    placeholder="e.g., ABC Construction Team">
                         </div>
                     </div>
-                    
+
                     <!-- Certifications -->
                     <div class="md:col-span-2">
                         <label for="certifications" class="block text-sm font-medium text-gray-700 mb-2">Certifications & Qualifications</label>
@@ -197,7 +211,7 @@
                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                   placeholder="Describe the services you need, project details, requirements..."></textarea>
                     </div>
-                    
+
                     <!-- Urgency -->
                     <div>
                         <label for="urgency" class="block text-sm font-medium text-gray-700 mb-2">Timeline/Urgency</label>
@@ -248,7 +262,7 @@ function toggleProfileFields() {
     const professionalFields = document.getElementById('professional-fields');
     const clientFields = document.getElementById('client-fields');
     const selectedType = document.querySelector('input[name="type"]:checked')?.value;
-    
+
     if (selectedType === 'PROFESSIONAL') {
         professionalFields.classList.remove('hidden');
         clientFields.classList.add('hidden');

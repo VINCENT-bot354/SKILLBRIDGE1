@@ -65,26 +65,21 @@ def create_profile():
             return render_template('dashboard/create_profile.html', 
                                  categories=CATEGORIES, counties=COUNTIES)
         
-        # Handle file upload
+        # Handle avatar upload (always allowed)
         avatar_url = None
         if 'avatar' in request.files:
             file = request.files['avatar']
             if file and file.filename and allowed_file(file.filename):
-                # Check if photo uploads are enabled
-                settings = AdminSettings.query.first()
-                if not settings or not settings.media_photos_enabled:
-                    flash('Photo uploads are currently disabled.', 'warning')
-                else:
-                    filename = secure_filename(file.filename)
-                    filename = f"{current_user.id}_{filename}"
-                    
-                    # Ensure upload directory exists
-                    upload_dir = os.path.join(current_app.root_path, 'uploads')
-                    os.makedirs(upload_dir, exist_ok=True)
-                    
-                    file_path = os.path.join(upload_dir, filename)
-                    file.save(file_path)
-                    avatar_url = f"/uploads/{filename}"
+                filename = secure_filename(file.filename)
+                filename = f"{current_user.id}_{filename}"
+                
+                # Ensure upload directory exists
+                upload_dir = os.path.join(current_app.root_path, 'uploads')
+                os.makedirs(upload_dir, exist_ok=True)
+                
+                file_path = os.path.join(upload_dir, filename)
+                file.save(file_path)
+                avatar_url = f"/uploads/{filename}"
         
         # Create profile
         profile = Profile()
@@ -141,6 +136,56 @@ def create_profile():
         
         db.session.add(profile)
         db.session.commit()
+        
+        # Handle additional media uploads (if enabled by admin)
+        settings = AdminSettings.query.first()
+        if settings and (settings.media_photos_enabled or settings.media_videos_enabled):
+            # Handle multiple photo uploads
+            if 'photos' in request.files:
+                photos = request.files.getlist('photos')
+                for photo in photos:
+                    if photo and photo.filename and allowed_file(photo.filename):
+                        from models import MediaAsset
+                        filename = secure_filename(photo.filename)
+                        filename = f"{current_user.id}_{profile.id}_{filename}"
+                        
+                        file_path = os.path.join(upload_dir, filename)
+                        photo.save(file_path)
+                        
+                        media_asset = MediaAsset()
+                        media_asset.user_id = current_user.id
+                        media_asset.profile_id = profile.id
+                        media_asset.type = 'IMAGE'
+                        media_asset.url = f"/uploads/{filename}"
+                        media_asset.filename = filename
+                        
+                        db.session.add(media_asset)
+            
+            # Handle video uploads
+            if 'videos' in request.files and settings.media_videos_enabled:
+                videos = request.files.getlist('videos')
+                video_extensions = {'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'}
+                for video in videos:
+                    if video and video.filename:
+                        file_ext = video.filename.rsplit('.', 1)[1].lower()
+                        if file_ext in video_extensions:
+                            from models import MediaAsset
+                            filename = secure_filename(video.filename)
+                            filename = f"{current_user.id}_{profile.id}_{filename}"
+                            
+                            file_path = os.path.join(upload_dir, filename)
+                            video.save(file_path)
+                            
+                            media_asset = MediaAsset()
+                            media_asset.user_id = current_user.id
+                            media_asset.profile_id = profile.id
+                            media_asset.type = 'VIDEO'
+                            media_asset.url = f"/uploads/{filename}"
+                            media_asset.filename = filename
+                            
+                            db.session.add(media_asset)
+            
+            db.session.commit()
         
         flash('Profile created successfully!', 'success')
         return redirect(url_for('profiles.my_profiles'))
@@ -262,7 +307,14 @@ def delete_profile(profile_id):
     return redirect(url_for('profiles.my_profiles'))
 
 @profiles_bp.route('/view/<int:profile_id>')
+@login_required  
 def view_profile(profile_id):
+    """Redirect to public profile view for profile owner"""
+    profile = Profile.query.filter_by(id=profile_id, user_id=current_user.id).first_or_404()
+    return redirect(url_for('public.profile_detail', profile_id=profile_id))
+
+@profiles_bp.route('/public/<int:profile_id>')
+def public_view(profile_id):
     from models import ProfileView
     from flask import request
     

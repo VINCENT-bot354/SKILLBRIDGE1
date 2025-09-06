@@ -121,12 +121,8 @@ def profile_detail(profile_id):
     """View profile details"""
     profile = Profile.query.get_or_404(profile_id)
 
-    # Increment view count
-    profile.total_views += 1
-    db.session.commit()
-
     # Check if profile is listed (public)
-    if not profile.is_listed:
+    if not profile.is_listed and (not current_user.is_authenticated or current_user.id != profile.user_id):
         flash('This profile is not publicly available.', 'error')
         return redirect(url_for('public.browse'))
 

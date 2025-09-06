@@ -118,6 +118,7 @@ class Profile(db.Model):
     # Relationships
     reviews_received = db.relationship('Review', foreign_keys='Review.reviewed_profile_id', backref='reviewed_profile', lazy='dynamic')
     views = db.relationship('ProfileView', backref='profile', lazy='dynamic', cascade='all, delete-orphan')
+    media_assets = db.relationship('MediaAsset', backref='profile', lazy='dynamic', cascade='all, delete-orphan')
     
     @property
     def total_views(self):

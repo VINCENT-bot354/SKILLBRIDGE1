@@ -135,6 +135,42 @@
                     {% endif %}
                 </div>
                 
+                <!-- Media Gallery -->
+                {% if profile.media_assets.count() > 0 %}
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Portfolio</h2>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {% for asset in profile.media_assets.limit(6) %}
+                            {% if asset.type == 'IMAGE' %}
+                                <div class="aspect-square rounded-lg overflow-hidden">
+                                    <img src="{{ asset.url }}" alt="{{ asset.description or 'Portfolio image' }}" 
+                                         class="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer"
+                                         onclick="openMediaModal('{{ asset.url }}', '{{ asset.type }}')">
+                                </div>
+                            {% elif asset.type == 'VIDEO' %}
+                                <div class="aspect-square rounded-lg overflow-hidden relative">
+                                    <video class="w-full h-full object-cover" preload="metadata">
+                                        <source src="{{ asset.url }}" type="video/mp4">
+                                    </video>
+                                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                        <i class="fas fa-play text-white text-2xl"></i>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    {% if profile.media_assets.count() > 6 %}
+                        <div class="text-center mt-4">
+                            <button class="text-primary-600 hover:text-primary-700 font-medium">
+                                View all {{ profile.media_assets.count() }} items
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
                 <!-- Professional Details -->
                 {% if profile.type.value == 'PROFESSIONAL' %}
                 <div class="bg-white rounded-2xl shadow-lg p-8">
