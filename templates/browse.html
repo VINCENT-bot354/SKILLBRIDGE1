@@ -211,10 +211,18 @@
         const filterIcon = document.getElementById('filter-icon');
 
         if (filterToggle && filterContent && filterIcon) {
-            filterToggle.addEventListener('click', function() {
+            filterToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 const isHidden = filterContent.classList.contains('hidden');
-                filterContent.classList.toggle('hidden');
-                filterIcon.classList.toggle('rotate-180', !isHidden);
+                if (isHidden) {
+                    filterContent.classList.remove('hidden');
+                    filterIcon.classList.add('rotate-180');
+                } else {
+                    filterContent.classList.add('hidden');
+                    filterIcon.classList.remove('rotate-180');
+                }
             });
 
             // Close dropdown when clicking outside

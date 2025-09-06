@@ -214,6 +214,68 @@
             </div>
             {% endif %}
 
+            <!-- Photos & Videos -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Photos & Videos</h2>
+                
+                <!-- Current Media -->
+                {% if profile.media_assets.count() > 0 %}
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-gray-900 mb-3">Current Media</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {% for asset in profile.media_assets %}
+                                <div class="relative group">
+                                    {% if asset.type == 'IMAGE' %}
+                                        <img src="{{ asset.url }}" alt="{{ asset.description or 'Portfolio image' }}" 
+                                             class="w-full h-24 object-cover rounded-lg">
+                                    {% elif asset.type == 'VIDEO' %}
+                                        <video class="w-full h-24 object-cover rounded-lg" preload="metadata">
+                                            <source src="{{ asset.url }}" type="video/mp4">
+                                        </video>
+                                        <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
+                                            <i class="fas fa-play text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    <button type="button" onclick="removeMedia({{ asset.id }})"
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Upload New Media -->
+                <div id="media-upload-section">
+                    <h3 class="font-semibold text-gray-900 mb-3">Add Photos & Videos</h3>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <input type="file" id="media-files" name="media_files" multiple 
+                               accept="image/*,video/*"
+                               class="hidden">
+                        <label for="media-files" class="cursor-pointer">
+                            <div class="text-gray-500">
+                                <i class="fas fa-cloud-upload-alt text-3xl mb-3 block"></i>
+                                <p class="text-lg font-medium">Click to upload photos or videos</p>
+                                <p class="text-sm">Or drag and drop files here</p>
+                                <p class="text-xs mt-2 text-gray-400">
+                                    Supported formats: JPG, PNG, GIF, MP4, MOV (Max 50MB each)
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+                    <div id="file-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 hidden"></div>
+                </div>
+                
+                <div id="coming-soon-media" class="hidden">
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                        <i class="fas fa-hourglass-half text-yellow-600 text-3xl mb-3"></i>
+                        <h3 class="font-semibold text-yellow-800 mb-2">Coming Soon</h3>
+                        <p class="text-yellow-700">Photo and video uploads will be available soon!</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Profile Settings -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Profile Settings</h2>
@@ -261,5 +323,130 @@ document.getElementById('is_group').addEventListener('change', function() {
         teamNameField.classList.add('hidden');
     }
 });
+
+// Media upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if media uploads are enabled (you can set this from backend)
+    const mediaUploadsEnabled = true; // This should come from admin settings
+    
+    const mediaUploadSection = document.getElementById('media-upload-section');
+    const comingSoonSection = document.getElementById('coming-soon-media');
+    
+    if (mediaUploadsEnabled) {
+        mediaUploadSection.classList.remove('hidden');
+        comingSoonSection.classList.add('hidden');
+    } else {
+        mediaUploadSection.classList.add('hidden');
+        comingSoonSection.classList.remove('hidden');
+    }
+    
+    // File input handler
+    const mediaInput = document.getElementById('media-files');
+    const filePreview = document.getElementById('file-preview');
+    
+    if (mediaInput) {
+        mediaInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            filePreview.innerHTML = '';
+            
+            if (files.length > 0) {
+                filePreview.classList.remove('hidden');
+                
+                Array.from(files).forEach((file, index) => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'relative bg-gray-100 rounded-lg p-3';
+                    
+                    let content = '';
+                    if (file.type.startsWith('image/')) {
+                        content = `<i class="fas fa-image text-2xl text-blue-500 mb-2 block"></i>`;
+                    } else if (file.type.startsWith('video/')) {
+                        content = `<i class="fas fa-video text-2xl text-red-500 mb-2 block"></i>`;
+                    }
+                    
+                    fileDiv.innerHTML = `
+                        ${content}
+                        <p class="text-xs text-gray-600 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    `;
+                    
+                    filePreview.appendChild(fileDiv);
+                });
+            } else {
+                filePreview.classList.add('hidden');
+            }
+        });
+    }
+});
+
+// Remove media function
+function removeMedia(assetId) {
+    if (confirm('Are you sure you want to remove this media?')) {
+        // Make AJAX call to remove media
+        fetch(`/profiles/remove-media/${assetId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || ''
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Reload to update the display
+            } else {
+                alert('Failed to remove media. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to remove media. Please try again.');
+        });
+    }
+}
+
+// Drag and drop functionality
+const mediaUploadSection = document.getElementById('media-upload-section');
+if (mediaUploadSection) {
+    const dropZone = mediaUploadSection.querySelector('.border-dashed');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+    
+    dropZone.addEventListener('drop', handleDrop, false);
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    function highlight(e) {
+        dropZone.classList.add('border-primary-500', 'bg-primary-50');
+    }
+    
+    function unhighlight(e) {
+        dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+    }
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        const mediaInput = document.getElementById('media-files');
+        mediaInput.files = files;
+        
+        // Trigger the change event
+        const event = new Event('change', { bubbles: true });
+        mediaInput.dispatchEvent(event);
+    }
+}
 </script>
 {% endblock %}
