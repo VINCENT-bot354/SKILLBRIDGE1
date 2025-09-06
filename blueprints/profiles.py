@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app import db
-from models import Profile, ProfileType, User, MediaAsset
+from models import Profile, ProfileType, User, MediaAsset, AdminSettings, AvailabilityStatus, UrgencyLevel, RateType
+from services.profanity_filter import ProfanityFilter
 import os
 from datetime import datetime
 
@@ -145,7 +146,6 @@ def create_profile():
                 photos = request.files.getlist('photos')
                 for photo in photos:
                     if photo and photo.filename and allowed_file(photo.filename):
-                        from models import MediaAsset
                         filename = secure_filename(photo.filename)
                         filename = f"{current_user.id}_{profile.id}_{filename}"
 
@@ -169,7 +169,6 @@ def create_profile():
                     if video and video.filename:
                         file_ext = video.filename.rsplit('.', 1)[1].lower()
                         if file_ext in video_extensions:
-                            from models import MediaAsset
                             filename = secure_filename(video.filename)
                             filename = f"{current_user.id}_{profile.id}_{filename}"
 
@@ -282,8 +281,6 @@ def edit_profile(profile_id):
 @login_required
 def remove_media(asset_id):
     """Remove a media asset"""
-    from models import MediaAsset
-
     asset = MediaAsset.query.get_or_404(asset_id)
 
     # Ensure user owns this media
