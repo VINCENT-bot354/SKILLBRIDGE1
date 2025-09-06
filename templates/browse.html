@@ -15,27 +15,115 @@
 
 <!-- Filters -->
 <section class="bg-white shadow-md sticky top-0 z-40 border-b">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <!-- Filter Toggle Button -->
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-900">Browse Profiles</h2>
-            <button type="button" id="filter-toggle" 
-                    class="flex items-center space-x-2 text-primary-600 hover:text-primary-700 font-medium">
-                <i class="fas fa-filter"></i>
-                <span>Filters</span>
-                <i class="fas fa-chevron-down transition-transform duration-200" id="filter-icon"></i>
-            </button>
-        </div>
-        
-        <!-- Filter Content -->
-        <div id="filter-content" class="hidden">
-            <form method="GET" class="space-y-4 lg:space-y-0 lg:flex lg:items-center lg:space-x-4">
-            <!-- Search -->
-            <div class="flex-1">
-                <input type="text" name="q" value="{{ current_filters.q }}"
-                       placeholder="Search by name, skills, or description..."
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-            </div>
+<!-- Shadow DOM Filter -->
+<div id="filter-wrapper"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const wrapper = document.getElementById('filter-wrapper');
+
+  // Create Shadow DOM
+  const shadow = wrapper.attachShadow({ mode: 'open' });
+
+  // Insert HTML + CSS inside shadow
+  shadow.innerHTML = `
+    <style>
+      /* Styling copied/adapted from your CSS */
+      #filter-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        color: var(--primary-600, #16a34a);
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      }
+
+      #filter-toggle:hover { color: var(--primary-700, #15803d); }
+
+      #filter-icon { transition: transform 0.3s ease; }
+
+      #filter-content {
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease;
+        margin-top: 0.5rem;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      }
+
+      #filter-content.open { max-height: 1000px; }
+
+      form { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      input, select, button { padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #e5e7eb; font-size: 0.95rem; }
+
+      input:focus, select:focus { outline: none; border-color: var(--primary-500, #22c55e); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1); }
+      button[type="submit"] { background: var(--primary-600, #16a34a); color: white; border: none; cursor: pointer; transition: background 0.3s ease; }
+      button[type="submit"]:hover { background: var(--primary-700, #15803d); }
+    </style>
+
+    <button id="filter-toggle">Filters <i id="filter-icon">▼</i></button>
+    <div id="filter-content">
+      <form method="GET">
+        <input type="text" name="q" placeholder="Search by name, skills, description...">
+        <select name="type">
+          <option value="">All Types</option>
+          <option value="PROFESSIONAL">Professionals</option>
+          <option value="CLIENT">Clients</option>
+        </select>
+        <select name="category">
+          <option value="">All Categories</option>
+          <option value="Design">Design</option>
+          <option value="Development">Development</option>
+        </select>
+        <select name="location">
+          <option value="">All Locations</option>
+          <option value="Nairobi">Nairobi</option>
+          <option value="Mombasa">Mombasa</option>
+        </select>
+        <select name="availability">
+          <option value="">Any Availability</option>
+          <option value="Available">Available</option>
+          <option value="Busy">Busy</option>
+        </select>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  `;
+
+  const toggle = shadow.getElementById('filter-toggle');
+  const content = shadow.getElementById('filter-content');
+  const icon = shadow.getElementById('filter-icon');
+
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = content.classList.contains('open');
+    if (!isOpen) {
+      content.classList.add('open');
+      icon.style.transform = 'rotate(180deg)';
+    } else {
+      content.classList.remove('open');
+      icon.style.transform = 'rotate(0deg)';
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrapper.contains(e.target)) {
+      content.classList.remove('open');
+      icon.style.transform = 'rotate(0deg)';
+    }
+  });
+});
+</script>
+
 
             <!-- Profile Type -->
             <div>
