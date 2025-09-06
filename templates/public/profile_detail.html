@@ -20,7 +20,7 @@
                             </div>
                         {% endif %}
                     </div>
-                    
+
                     <!-- Basic Info -->
                     <div class="flex-1">
                         <div class="flex items-center space-x-3 mb-2">
@@ -41,7 +41,7 @@
                                 </span>
                             {% endif %}
                         </div>
-                        
+
                         <div class="space-y-2 text-primary-100">
                             <p class="flex items-center">
                                 <i class="fas fa-user-tag mr-2"></i>
@@ -66,7 +66,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Quick Actions -->
             <div class="lg:col-span-1">
                 <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6">
@@ -81,8 +81,6 @@
                                 <i class="fas fa-star mr-2"></i>Write Review
                             </a>
                         </div>
-                        
-                        <!-- Contact Info (for logged in users) -->
                         <div class="mt-6 pt-6 border-t border-white border-opacity-20">
                             <h3 class="font-semibold mb-3">Contact Information</h3>
                             <p class="text-primary-100 text-sm">
@@ -116,11 +114,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Content -->
             <div class="lg:col-span-2 space-y-8">
-                <!-- About -->
+                <!-- About Section -->
                 <div class="bg-white rounded-2xl shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-4">About</h2>
                     <p class="text-gray-700 leading-relaxed">{{ profile.bio }}</p>
-                    
                     {% if profile.tags %}
                         <div class="mt-6">
                             <h3 class="font-semibold text-gray-900 mb-3">Skills & Tags</h3>
@@ -134,12 +131,11 @@
                         </div>
                     {% endif %}
                 </div>
-                
+
                 <!-- Media Gallery -->
                 {% if profile.media_assets.count() > 0 %}
                 <div class="bg-white rounded-2xl shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Portfolio</h2>
-                    
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {% for asset in profile.media_assets.limit(6) %}
                             {% if asset.type == 'IMAGE' %}
@@ -150,17 +146,13 @@
                                 </div>
                             {% elif asset.type == 'VIDEO' %}
                                 <div class="aspect-square rounded-lg overflow-hidden relative">
-                                    <video class="w-full h-full object-cover" preload="metadata">
+                                    <video class="w-full h-full object-cover" autoplay muted loop playsinline>
                                         <source src="{{ asset.url }}" type="video/mp4">
                                     </video>
-                                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                                        <i class="fas fa-play text-white text-2xl"></i>
-                                    </div>
                                 </div>
                             {% endif %}
                         {% endfor %}
                     </div>
-                    
                     {% if profile.media_assets.count() > 6 %}
                         <div class="text-center mt-4">
                             <button class="text-primary-600 hover:text-primary-700 font-medium">
@@ -170,12 +162,11 @@
                     {% endif %}
                 </div>
                 {% endif %}
-                
+
                 <!-- Professional Details -->
                 {% if profile.type.value == 'PROFESSIONAL' %}
                 <div class="bg-white rounded-2xl shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Professional Details</h2>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {% if profile.category %}
                             <div>
@@ -183,14 +174,12 @@
                                 <p class="text-gray-700">{{ profile.category }}</p>
                             </div>
                         {% endif %}
-                        
                         {% if profile.years_experience %}
                             <div>
                                 <h3 class="font-semibold text-gray-900 mb-2">Experience</h3>
                                 <p class="text-gray-700">{{ profile.years_experience }} years</p>
                             </div>
                         {% endif %}
-                        
                         {% if profile.rate_type and profile.rate_value %}
                             <div>
                                 <h3 class="font-semibold text-gray-900 mb-2">Rate</h3>
@@ -202,7 +191,6 @@
                                 <p class="text-gray-700">{{ profile.rate_type.value.title() }}</p>
                             </div>
                         {% endif %}
-                        
                         {% if profile.is_group and profile.team_name %}
                             <div>
                                 <h3 class="font-semibold text-gray-900 mb-2">Team/Group</h3>
@@ -210,7 +198,7 @@
                             </div>
                         {% endif %}
                     </div>
-                    
+
                     {% if profile.certifications %}
                         <div class="mt-6">
                             <h3 class="font-semibold text-gray-900 mb-3">Certifications</h3>
@@ -219,16 +207,13 @@
                     {% endif %}
                 </div>
                 {% endif %}
-                
                 <!-- Client Details -->
                 {% if profile.type.value == 'CLIENT' %}
                 <div class="bg-white rounded-2xl shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">What I'm Looking For</h2>
-                    
                     {% if profile.what_looking_for %}
                         <p class="text-gray-700 mb-6">{{ profile.what_looking_for }}</p>
                     {% endif %}
-                    
                     {% if profile.urgency %}
                         <div>
                             <h3 class="font-semibold text-gray-900 mb-2">Timeline</h3>
@@ -239,7 +224,7 @@
                     {% endif %}
                 </div>
                 {% endif %}
-                
+
                 <!-- Reviews -->
                 {% if reviews or averages.total_reviews > 0 %}
                 <div class="bg-white rounded-2xl shadow-lg p-8">
@@ -250,7 +235,7 @@
                             View All Reviews
                         </a>
                     </div>
-                    
+
                     <!-- Average Ratings -->
                     {% if averages.total_reviews > 0 %}
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -292,7 +277,7 @@
                             </div>
                         </div>
                     {% endif %}
-                    
+
                     <!-- Recent Reviews -->
                     {% if reviews %}
                         <div class="space-y-6">
@@ -303,8 +288,9 @@
                     {% endif %}
                 </div>
                 {% endif %}
+
             </div>
-            
+
             <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
                 <!-- Quick Stats -->
@@ -331,7 +317,7 @@
                         {% endif %}
                     </div>
                 </div>
-                
+
                 <!-- Similar Profiles -->
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <h3 class="font-bold text-gray-900 mb-4">Similar Profiles</h3>
@@ -339,11 +325,11 @@
                         <a href="{{ url_for('public.browse', type=profile.type.value, category=profile.category) }}" 
                            class="text-primary-600 hover:text-primary-700">
                             View more {{ profile.type.value.lower() }}s
-                            {% if profile.category %}in {{ profile.category }}{% endif %}
+                            {% if profile.category %} in {{ profile.category }}{% endif %}
                         </a>
                     </p>
                 </div>
-                
+
                 <!-- Report Profile -->
                 <div class="bg-red-50 rounded-2xl p-6">
                     <h3 class="font-bold text-red-800 mb-2">Report Profile</h3>
@@ -356,4 +342,39 @@
         </div>
     </div>
 </section>
+
+<!-- Media Modal -->
+<div id="mediaModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="relative w-full max-w-4xl p-4">
+        <button class="absolute top-2 right-2 text-white text-2xl font-bold" onclick="closeMediaModal()">&times;</button>
+        <img id="mediaModalContent" class="w-full h-auto rounded-lg" src="" alt="Media">
+    </div>
+</div>
+
+<script>
+    function openMediaModal(url, type) {
+        const modal = document.getElementById('mediaModal');
+        const content = document.getElementById('mediaModalContent');
+        content.src = url;
+        modal.classList.remove('hidden');
+    }
+
+    function closeMediaModal() {
+        const modal = document.getElementById('mediaModal');
+        modal.classList.add('hidden');
+    }
+
+    // Auto-play all videos in the media gallery
+    document.addEventListener('DOMContentLoaded', function() {
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            video.play().catch(() => {
+                // In case autoplay is blocked
+                video.muted = true;
+                video.play();
+            });
+        });
+    });
+</script>
+
 {% endblock %}
