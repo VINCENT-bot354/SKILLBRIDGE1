@@ -210,25 +210,53 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterContent = document.getElementById('filter-content');
     const filterIcon = document.getElementById('filter-icon');
 
-    if (filterToggle && filterContent && filterIcon) {
+    if (!filterToggle || !filterContent || !filterIcon) return;
 
-        // Toggle filter open/close
-        filterToggle.addEventListener('click', function(e) {
-            e.stopPropagation(); // Prevent triggering document click
-            filterContent.classList.toggle('hidden');
-            filterIcon.classList.toggle('rotate-180');
-        });
+    // Remove any pre-existing event listeners by cloning
+    const newFilterToggle = filterToggle.cloneNode(true);
+    filterToggle.parentNode.replaceChild(newFilterToggle, filterToggle);
 
-        // Close filter when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!filterContent.contains(e.target) && !filterToggle.contains(e.target)) {
-                if (!filterContent.classList.contains('hidden')) {
-                    filterContent.classList.add('hidden');
-                    filterIcon.classList.remove('rotate-180');
-                }
-            }
-        });
+    const newFilterContent = filterContent.cloneNode(true);
+    filterContent.parentNode.replaceChild(newFilterContent, filterContent);
+
+    // Update references
+    const toggle = newFilterToggle;
+    const content = newFilterContent;
+    const icon = document.getElementById('filter-icon');
+
+    // Open filter
+    function openFilter() {
+        content.classList.remove('hidden');
+        icon.classList.add('rotate-180');
     }
+
+    // Close filter
+    function closeFilter() {
+        content.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+    }
+
+    // Toggle filter on click
+    toggle.addEventListener('click', function(e) {
+        e.stopPropagation(); // prevent global listeners
+        if (content.classList.contains('hidden')) {
+            openFilter();
+        } else {
+            closeFilter();
+        }
+    });
+
+    // Prevent closing when clicking inside content
+    content.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+
+    // Close filter when clicking anywhere else
+    document.addEventListener('click', function() {
+        if (!content.classList.contains('hidden')) {
+            closeFilter();
+        }
+    });
 });
 </script>
 
