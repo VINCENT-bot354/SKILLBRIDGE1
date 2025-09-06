@@ -125,55 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
-            <!-- Profile Type -->
-            <div>
-                <select name="type" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    <option value="">All Types</option>
-                    <option value="PROFESSIONAL" {% if current_filters.type == 'PROFESSIONAL' %}selected{% endif %}>Professionals</option>
-                    <option value="CLIENT" {% if current_filters.type == 'CLIENT' %}selected{% endif %}>Clients</option>
-                </select>
-            </div>
-
-            <!-- Category -->
-            <div>
-                <select name="category" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    <option value="">All Categories</option>
-                    {% for category in categories %}
-                        <option value="{{ category }}" {% if current_filters.category == category %}selected{% endif %}>
-                            {{ category }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Location -->
-            <div>
-                <select name="location" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    <option value="">All Locations</option>
-                    {% for county in counties %}
-                        <option value="{{ county }}" {% if current_filters.location == county %}selected{% endif %}>
-                            {{ county }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Availability -->
-            <div>
-                <select name="availability" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    <option value="">Any Availability</option>
-                    <option value="Available" {% if current_filters.availability == 'Available' %}selected{% endif %}>Available</option>
-                    <option value="Busy" {% if current_filters.availability == 'Busy' %}selected{% endif %}>Busy</option>
-                </select>
-            </div>
-
-            <!-- Search Button -->
-            <div>
-                <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition">
-                    <i class="fas fa-search mr-2"></i>Search
-                </button>
-            </div>
-            </form>
+            
 
             <!-- Active Filters Display -->
         {% if current_filters.q or current_filters.type or current_filters.category or current_filters.location or current_filters.availability %}
