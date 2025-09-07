@@ -1,3 +1,5 @@
+
+
 {% extends "base.html" %}
 
 {% block title %}Edit {{ profile.title }} - SkillBridge Africa{% endblock %}
@@ -23,12 +25,10 @@
 <section class="py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <form method="POST" enctype="multipart/form-data" class="space-y-8">
-            
             <!-- Basic Information -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Basic Information</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
                     <!-- Current Avatar -->
                     {% if profile.avatar_url %}
                         <div class="md:col-span-2">
@@ -38,7 +38,7 @@
                         </div>
                     {% endif %}
                     
-                    <!-- Profile Title -->
+                    <!-- Title -->
                     <div class="md:col-span-2">
                         <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Profile Title *</label>
                         <input type="text" id="title" name="title" required maxlength="200" value="{{ profile.title }}"
@@ -55,7 +55,7 @@
                         <p class="text-xs text-gray-500 mt-1">Optional: Upload a professional photo (JPG, PNG, GIF)</p>
                     </div>
                     
-                    <!-- Country -->
+                    <!-- Location -->
                     <div>
                         <label for="location_country" class="block text-sm font-medium text-gray-700 mb-2">Country *</label>
                         <input type="text" id="location_country" name="location_country" required 
@@ -63,7 +63,6 @@
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
                     
-                    <!-- County -->
                     <div>
                         <label for="location_county" class="block text-sm font-medium text-gray-700 mb-2">County *</label>
                         <select id="location_county" name="location_county" required
@@ -76,7 +75,6 @@
                         </select>
                     </div>
                     
-                    <!-- Town/City -->
                     <div>
                         <label for="location_town" class="block text-sm font-medium text-gray-700 mb-2">Town/City *</label>
                         <input type="text" id="location_town" name="location_town" required 
@@ -113,12 +111,12 @@
                     <p class="text-xs text-gray-500 mt-1">Separate tags with commas</p>
                 </div>
             </div>
+
             <!-- Professional Fields -->
             {% if profile.type.value == 'PROFESSIONAL' %}
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Professional Details</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
                     <!-- Category -->
                     <div>
                         <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Service Category</label>
@@ -195,12 +193,14 @@
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">What You're Looking For</h2>
                 <div class="space-y-6">
+                    <!-- What Looking For -->
                     <div>
                         <label for="what_looking_for" class="block text-sm font-medium text-gray-700 mb-2">Describe Your Needs</label>
                         <textarea id="what_looking_for" name="what_looking_for" rows="4"
                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">{{ profile.what_looking_for or '' }}</textarea>
                     </div>
                     
+                    <!-- Urgency -->
                     <div>
                         <label for="urgency" class="block text-sm font-medium text-gray-700 mb-2">Timeline/Urgency</label>
                         <select id="urgency" name="urgency"
@@ -219,7 +219,7 @@
             <!-- Photos & Videos -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Photos & Videos</h2>
-
+                
                 <!-- Current Media -->
                 {% if profile.media_assets.count() > 0 %}
                     <div class="mb-6">
@@ -247,9 +247,8 @@
                         </div>
                     </div>
                 {% endif %}
-
-                <!-- Toggle Upload vs Coming Soon -->
-                {% if media_upload_enabled %}
+                
+                <!-- Upload New Media -->
                 <div id="media-upload-section">
                     <h3 class="font-semibold text-gray-900 mb-3">Add Photos & Videos</h3>
                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
@@ -269,125 +268,38 @@
                     </div>
                     <div id="file-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 hidden"></div>
                 </div>
-                {% else %}
-                <div id="coming-soon-media">
+                
+                <div id="coming-soon-media" class="hidden">
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
                         <i class="fas fa-hourglass-half text-yellow-600 text-3xl mb-3"></i>
                         <h3 class="font-semibold text-yellow-800 mb-2">Coming Soon</h3>
-                        <p class="text
--yellow-700">Photo and video uploads will be available soon!</p>
+                        <p class="text-yellow-700">Photo and video uploads will be available soon!</p>
                     </div>
                 </div>
-                {% endif %}
             </div>
-            <!-- Settings -->
+
+            <!-- Profile Settings -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Profile Settings</h2>
-                <div class="space-y-6">
-                    
-                    <!-- Visibility -->
-                    <div>
-                        <label for="is_public" class="block text-sm font-medium text-gray-700 mb-2">Profile Visibility</label>
-                        <select id="is_public" name="is_public"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                            <option value="true" {% if profile.is_public %}selected{% endif %}>Public</option>
-                            <option value="false" {% if not profile.is_public %}selected{% endif %}>Private</option>
-                        </select>
-                        <p class="text-xs text-gray-500 mt-1">Public profiles are visible in search results</p>
-                    </div>
-
-                    <!-- Accepting Work -->
-                    {% if profile.type.value == 'PROFESSIONAL' %}
-                    <div class="flex items-center">
-                        <input type="checkbox" id="accepting_work" name="accepting_work" value="1"
-                               {% if profile.accepting_work %}checked{% endif %}
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium text-gray-900">Make Profile Public</h3>
+                            <p class="text-sm text-gray-600">Allow other users to find and view your profile</p>
+                        </div>
+                        <input type="checkbox" name="is_listed" value="1" {% if profile.is_listed %}checked{% endif %}
                                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                        <label for="accepting_work" class="ml-2 block text-sm text-gray-700">
-                            Currently accepting work
-                        </label>
-                    </div>
-                    {% endif %}
-
-                    <!-- Notifications -->
-                    <div class="flex items-center">
-                        <input type="checkbox" id="email_notifications" name="email_notifications" value="1"
-                               {% if profile.email_notifications %}checked{% endif %}
-                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                        <label for="email_notifications" class="ml-2 block text-sm text-gray-700">
-                            Receive email notifications
-                        </label>
                     </div>
                 </div>
             </div>
 
-            <!-- Submit -->
-            <div class="flex justify-end space-x-4">
-                <a href="{{ url_for('profile.view_profile', profile_id=profile.id) }}"
-                   class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                    Cancel
+            <!-- Submit Buttons -->
+            <div class="flex justify-between items-center">
+                <a href="{{ url_for('profiles.my_profiles') }}" 
+                   class="text-gray-600 hover:text-gray-800 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Profiles
                 </a>
-                <button type="submit"
-                        class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                    Save Changes
-                </button>
-            </div>
-        </form>
-    </div>
-</section>
-
-<!-- Scripts -->
-<script>
-    // Toggle team name field
-    document.getElementById('is_group')?.addEventListener('change', function() {
-        document.getElementById('team-name-field').classList.toggle('hidden', !this.checked);
-    });
-
-    // File preview for uploads
-    document.getElementById('media-files')?.addEventListener('change', function(e) {
-        const files = e.target.files;
-        const preview = document.getElementById('file-preview');
-        preview.innerHTML = '';
-        if (files.length > 0) {
-            preview.classList.remove('hidden');
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'relative';
-                    if (file.type.startsWith('image/')) {
-                        div.innerHTML = `<img src="${e.target.result}" class="w-full h-24 object-cover rounded-lg">`;
-                    } else if (file.type.startsWith('video/')) {
-                        div.innerHTML = `
-                            <video class="w-full h-24 object-cover rounded-lg" preload="metadata">
-                                <source src="${e.target.result}" type="${file.type}">
-                            </video>`;
-                    }
-                    preview.appendChild(div);
-                }
-                reader.readAsDataURL(file);
-            });
-        } else {
-            preview.classList.add('hidden');
-        }
-    });
-
-    // Remove media function
-    function removeMedia(id) {
-        if (confirm('Are you sure you want to remove this media?')) {
-            fetch(`/profile/remove-media/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token() }}'
-                }
-            }).then(response => {
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    aler
-t('Failed to remove media');
-                }
-            });
-        }
-    }
-</script>
-{% endblock %}
+                <div class="space-x-4">
+                    <a href="{{ url_for('profiles.delete_profile', profile_id=profile.id) }}" 
+                       onclick="return confirm('Are you sure you want to delete this profile?')"
+                       class="bg-red-600 text-white px-6 py-3 rou
