@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ profile.title }} - SkillBridge Africa{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Edit Profile</h1>
+                <p class="text-primary-100 mt-2">{{ profile.title }}</p>
+            </div>
+            <a href="{{ url_for('public.profile_detail', profile_id=profile.id) }}" 
+               class="bg-accent-500 text-white px-6 py-3 rounded-lg hover:bg-accent-600 transition font-medium">
+                <i class="fas fa-eye mr-2"></i>View Profile
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Form -->
+<section class="py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            <!-- Basic Information -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Basic Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Current Avatar -->
+                    {% if profile.avatar_url %}
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Photo</label>
+                            <img src="{{ profile.avatar_url }}" alt="{{ profile.title }}" 
+                                 class="w-20 h-20 rounded-full object-cover border-4 border-gray-200">
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Title -->
+                    <div class="md:col-span-2">
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Profile Title *</label>
+                        <input type="text" id="title" name="title" required maxlength="200" value="{{ profile.title }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <!-- Avatar Upload -->
+                    <div>
+                        <label for="avatar" class="block text-sm font-medium text-gray-700 mb-2">
+                            {% if profile.avatar_url %}Update Photo{% else %}Profile Photo{% endif %}
+                        </label>
+                        <input type="file" id="avatar" name="avatar" accept="image/*"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <p class="text-xs text-gray-500 mt-1">Optional: Upload a professional photo (JPG, PNG, GIF)</p>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div>
+                        <label for="location_country" class="block text-sm font-medium text-gray-700 mb-2">Country *</label>
+                        <input type="text" id="location_country" name="location_country" required 
+                               value="{{ profile.location_country }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <div>
+                        <label for="location_county" class="block text-sm font-medium text-gray-700 mb-2">County *</label>
+                        <select id="location_county" name="location_county" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            {% for county in counties %}
+                                <option value="{{ county }}" {% if profile.location_county == county %}selected{% endif %}>
+                                    {{ county }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="location_town" class="block text-sm font-medium text-gray-700 mb-2">Town/City *</label>
+                        <input type="text" id="location_town" name="location_town" required 
+                               value="{{ profile.location_town }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <!-- Availability -->
+                    <div>
+                        <label for="availability" class="block text-sm font-medium text-gray-700 mb-2">Availability Status</label>
+                        <select id="availability" name="availability"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="Available" {% if profile.availability.value == 'Available' %}selected{% endif %}>Available</option>
+                            <option value="Busy" {% if profile.availability.value == 'Busy' %}selected{% endif %}>Busy</option>
+                            <option value="On Vacation" {% if profile.availability.value == 'On Vacation' %}selected{% endif %}>On Vacation</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Bio -->
+                <div class="mt-6">
+                    <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                    <textarea id="bio" name="bio" required rows="4" maxlength="1000"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">{{ profile.bio }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Maximum 1000 characters</p>
+                </div>
+                
+                <!-- Tags -->
+                <div class="mt-6">
+                    <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">Skills/Tags</label>
+                    <input type="text" id="tags" name="tags" value="{{ profile.tags or '' }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="e.g., plumbing, repairs, installation, emergency services">
+                    <p class="text-xs text-gray-500 mt-1">Separate tags with commas</p>
+                </div>
+            </div>
+
+            <!-- Professional Fields -->
+            {% if profile.type.value == 'PROFESSIONAL' %}
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Professional Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Service Category</label>
+                        <select id="category" name="category"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Category</option>
+                            {% for category in categories %}
+                                <option value="{{ category }}" {% if profile.category == category %}selected{% endif %}>
+                                    {{ category }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Experience -->
+                    <div>
+                        <label for="years_experience" class="block text-sm font-medium text-gray-700 mb-2">Years of Experience</label>
+                        <input type="number" id="years_experience" name="years_experience" min="0" max="50" 
+                               value="{{ profile.years_experience or '' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <!-- Rate Type -->
+                    <div>
+                        <label for="rate_type" class="block text-sm font-medium text-gray-700 mb-2">Rate Type</label>
+                        <select id="rate_type" name="rate_type"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Rate Type</option>
+                            <option value="hourly" {% if profile.rate_type and profile.rate_type.value == 'hourly' %}selected{% endif %}>Hourly</option>
+                            <option value="daily" {% if profile.rate_type and profile.rate_type.value == 'daily' %}selected{% endif %}>Daily</option>
+                            <option value="fixed" {% if profile.rate_type and profile.rate_type.value == 'fixed' %}selected{% endif %}>Fixed Project</option>
+                            <option value="negotiable" {% if profile.rate_type and profile.rate_type.value == 'negotiable' %}selected{% endif %}>Negotiable</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Rate Value -->
+                    <div>
+                        <label for="rate_value" class="block text-sm font-medium text-gray-700 mb-2">Rate (KES)</label>
+                        <input type="number" id="rate_value" name="rate_value" min="0" step="50" 
+                               value="{{ profile.rate_value or '' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <p class="text-xs text-gray-500 mt-1">Optional: Leave blank if negotiable</p>
+                    </div>
+                    
+                    <!-- Team/Group -->
+                    <div class="md:col-span-2">
+                        <div class="flex items-center mb-4">
+                            <input type="checkbox" id="is_group" name="is_group" value="1" 
+                                   {% if profile.is_group %}checked{% endif %}
+                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                            <label for="is_group" class="ml-2 block text-sm text-gray-700">
+                                This is a team/group profile
+                            </label>
+                        </div>
+                        <div id="team-name-field" class="{% if not profile.is_group %}hidden{% endif %}">
+                            <label for="team_name" class="block text-sm font-medium text-gray-700 mb-2">Team/Group Name</label>
+                            <input type="text" id="team_name" name="team_name" value="{{ profile.team_name or '' }}"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                    </div>
+                    
+                    <!-- Certifications -->
+                    <div class="md:col-span-2">
+                        <label for="certifications" class="block text-sm font-medium text-gray-700 mb-2">Certifications & Qualifications</label>
+                        <textarea id="certifications" name="certifications" rows="3"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">{{ profile.certifications or '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+              <!-- Client Fields -->
+            {% if profile.type.value == 'CLIENT' %}
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">What You're Looking For</h2>
+                <div class="space-y-6">
+                    <!-- What Looking For -->
+                    <div>
+                        <label for="what_looking_for" class="block text-sm font-medium text-gray-700 mb-2">Describe Your Needs</label>
+                        <textarea id="what_looking_for" name="what_looking_for" rows="4"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">{{ profile.what_looking_for or '' }}</textarea>
+                    </div>
+                    
+                    <!-- Urgency -->
+                    <div>
+                        <label for="urgency" class="block text-sm font-medium text-gray-700 mb-2">Timeline/Urgency</label>
+                        <select id="urgency" name="urgency"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select Timeline</option>
+                            <option value="Today" {% if profile.urgency and profile.urgency.value == 'Today' %}selected{% endif %}>Today</option>
+                            <option value="This week" {% if profile.urgency and profile.urgency.value == 'This week' %}selected{% endif %}>This week</option>
+                            <option value="This month" {% if profile.urgency and profile.urgency.value == 'This month' %}selected{% endif %}>This month</option>
+                            <option value="Flexible" {% if profile.urgency and profile.urgency.value == 'Flexible' %}selected{% endif %}>Flexible</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Photos & Videos -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Photos & Videos</h2>
+                
+                <!-- Current Media -->
+                {% if profile.media_assets.count() > 0 %}
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-gray-900 mb-3">Current Media</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {% for asset in profile.media_assets %}
+                                <div class="relative group">
+                                    {% if asset.type == 'IMAGE' %}
+                                        <img src="{{ asset.url }}" alt="{{ asset.description or 'Portfolio image' }}" 
+                                             class="w-full h-24 object-cover rounded-lg">
+                                    {% elif asset.type == 'VIDEO' %}
+                                        <video class="w-full h-24 object-cover rounded-lg" preload="metadata">
+                                            <source src="{{ asset.url }}" type="video/mp4">
+                                        </video>
+                                        <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
+                                            <i class="fas fa-play text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    <button type="button" onclick="removeMedia({{ asset.id }})"
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if media_enabled %}
+                    <!-- Upload New Media -->
+                    <div id="media-upload-section">
+                        <h3 class="font-semibold text-gray-900 mb-3">Add Photos & Videos</h3>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <input type="file" id="media-files" name="media_files" multiple 
+                                   accept="image/*,video/*"
+                                   class="hidden">
+                            <label for="media-files" class="cursor-pointer">
+                                <div class="text-gray-500">
+                                    <i class="fas fa-cloud-upload-alt text-3xl mb-3 block"></i>
+                                    <p class="text-lg font-medium">Click to upload photos or videos</p>
+                                    <p class="text-sm">Or drag and drop files here</p>
+                                    <p class="text-xs mt-2 text-gray-400">
+                                        Supported formats: JPG, PNG, GIF, MP4, MOV (Max 50MB each)
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                        <div id="file-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 hidden"></div>
+                    </div>
+                {% else %}
+                    <!-- Coming Soon -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                        <i class="fas fa-hourglass-half text-yellow-600 text-3xl mb-3"></i>
+                        <h3 class="font-semibold text-yellow-800 mb-2">Coming Soon</h3>
+                        <p class="text-yellow-700">Photo and video uploads will be available soon!</p>
+                    </div>
+                {% endif %}
+            </div>
+                        <!-- Settings -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Profile Settings</h2>
+                
+                <div class="space-y-6">
+                    <!-- Visibility -->
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is_visible" name="is_visible" value="true"
+                               {% if profile.is_visible %}checked{% endif %}
+                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <label for="is_visible" class="ml-2 block text-sm text-gray-900">
+                            Make my profile visible to others
+                        </label>
+                    </div>
+                    
+                    <!-- Allow Messages -->
+                    <div class="flex items-center">
+                        <input type="checkbox" id="allow_messages" name="allow_messages" value="true"
+                               {% if profile.allow_messages %}checked{% endif %}
+                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <label for="allow_messages" class="ml-2 block text-sm text-gray-900">
+                            Allow other users to send me messages
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Submit -->
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- JavaScript for Media Preview -->
+<script>
+document.getElementById('media-files')?.addEventListener('change', function(event) {
+    const preview = document.getElementById('file-preview');
+    preview.innerHTML = '';
+    if (this.files.length > 0) {
+        preview.classList.remove('hidden');
+    }
+    Array.from(this.files).forEach(file => {
+        const fileURL = URL.createObjectURL(file);
+        let element;
+        if (file.type.startsWith('image/')) {
+            element = document.createElement('img');
+            element.src = fileURL;
+            element.className = 'w-full h-24 object-cover rounded-lg';
+        } else if (file.type.startsWith('video/')) {
+            element = document.createElement('video');
+            element.src = fileURL;
+            element.className = 'w-full h-24 object-cover rounded-lg';
+            element.controls = true;
+        }
+        preview.appendChild(element);
+    });
+});
+</script>
+{% endblock %}
