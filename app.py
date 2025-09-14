@@ -7,6 +7,7 @@ from flask_mail import Mail
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import generate_password_hash
 from sqlalchemy.orm import DeclarativeBase
+from pinger import start_pinger  # import the ping logic
 
 
 # Configure logging
