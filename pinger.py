@@ -1,23 +1,23 @@
-import threading, time, requests
-from flask import Flask
+# pinger.py for Skillbridge
+import threading
+import time
+import requests
 
-app = Flask(__name__)
+# URL of the other site to ping
+PING_URL = "https://254kenyasafaris.africa/health"
+PING_INTERVAL = 8 * 60  # 8 minutes
 
-# URL of the other site
-PINGER_URL = "https://254kenyasafaris.africa/health"
-
-def ping_other_site():
+def ping_site():
+    """Continuously ping the other site every 8 minutes."""
     while True:
         try:
-            r = requests.get(PINGER_URL, timeout=10)
-            print(f"Pinged 254 Kenya Safaris -> {r.status_code}")
+            response = requests.get(PING_URL)
+            print(f"Pinged {PING_URL} - Status code: {response.status_code}")
         except Exception as e:
-            print(f"Error pinging 254 Kenya Safaris: {e}")
-        time.sleep(660)  # every 11 minutes
+            print(f"Error pinging {PING_URL}: {e}")
+        time.sleep(PING_INTERVAL)
 
-# Start background thread
-threading.Thread(target=ping_other_site, daemon=True).start()
-
-@app.route("/health")
-def health():
-    return "OK from SkillBridge"
+def start_pinger():
+    """Start the pinging in a background thread."""
+    thread = threading.Thread(target=ping_site, daemon=True)
+    thread.start()
