@@ -23,10 +23,6 @@ db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 mail = Mail()
 
-@app.route("/health")
-def health():
-    return "OK", 200
-    
 
 def create_app():
     app = Flask(__name__)
